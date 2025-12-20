@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laporan Pro - Versi Final Anti-Potong</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+:root {
+  --bg-app: #071226;
+  --card: #141d2f;
+  --primary: #3b82f6;
+  --text: #eaf3ff;
+}
+
+body { font-family: system-ui, sans-serif; background: var(--bg-app); color: var(--text); margin: 0; padding: 15px; }
+.container { max-width: 900px; margin: auto; }
+.card { background: var(--card); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+
+label { display: block; margin-top: 10px; font-size: 13px; color: #94a3b8; font-weight: bold; }
+input, textarea { width: 100%; box-sizing: border-box; padding: 12px; margin-top: 6px; border-radius: 8px; border: 1px solid #334155; background: #071226; color: white; font-size: 15px; }
+
+/* Textarea Edit Raksasa */
+textarea#ai_out { min-height: 550px; border: 2px solid var(--primary); line-height: 1.6; }
+
+.btn { padding: 16px; border-radius: 10px; border: 0; cursor: pointer; font-weight: bold; width: 100%; margin-top: 12px; font-size: 16px; }
+.btn-blue { background: var(--primary); color: white; }
+.btn-green { background: #10b981; color: white; }
+
+/* === PDF RENDER RULES === */
+#pdf-area { display: none; }
+
+.pdf-page {
+    background: white !important;
+    color: black !important;
+    padding: 15mm 20mm; /* Padding standar dokumen resmi */
+    font-family: "Times New Roman", serif;
+}
+
+/* Header Rapat ke Atas */
+.pdf-header {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #1e3a8a;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    margin-top: 0 !important; /* Hapus semua sisa spasi atas */
+}
+
+.pdf-logo { width: 75px; height: 75px; object-fit: contain; margin-right: 15px; }
+.pdf-title-text h1 { margin: 0; font-size: 18pt; color: #1e3a8a; text-transform: uppercase; }
+.pdf-title-text p { margin: 2px 0 0 0; font-size: 10pt; color: #555; }
+
+.section-title {
+    background: #f1f5f9;
+    border-left: 5px solid #2563eb;
+    padding: 8px 12px;
+    font-weight: bold;
+    font-size: 12pt;
+    margin: 15px 0 10px 0;
+    page-break-after: avoid;
+}
+
+.content-body {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 11pt;
+    text-align: justify;
+}
+
+/* ANTI POTONG FOTO */
+.photo-block {
+    display: block;
+    width: 100%;
+    margin-bottom: 25px;
+    page-break-inside: avoid !important; /* KUNCI: Jangan potong di tengah foto */
+    text-align: center;
+}
+
+.photo-block img {
+    max-width: 100%;
+    max-height: 420px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.photo-caption { font-size: 9pt; color: #666; margin-top: 5px; font-style: italic; }
+
+.sig-container {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    page-break-inside: avoid;
+}
+.sig-box { width: 45%; text-align: center; }
+.sig-line { height: 70px; border-bottom: 1px solid black; margin-bottom: 5px; }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="card">
+    <h2 style="margin:0; color:var(--primary)">1. INPUT DATA & LOGO</h2>
+    <label>🖼️ Logo Header (Upload untuk hilangkan area kosong)</label>
+    <input type="file" accept="image/*" onchange="readHeader(this.files)">
+    
+    <div style="display:flex; gap:10px; margin-top:10px">
+        <div style="flex:1"><label>Pelapor</label><input id="p1" placeholder="Nama Pelapor"></div>
+        <div style="flex:1"><label>Penerima</label><input id="p2" placeholder="Nama Penerima"></div>
+    </div>
+    
+    <label>📸 Foto Dokumentasi (Bisa pilih banyak sekaligus)</label>
+    <input type="file" accept="image/*" multiple onchange="readPhotos(this.files)">
+    <div id="status" style="font-size:12px; color:#10b981; margin-top:5px"></div>
+
+    <button onclick="copyPrompt()" class="btn btn-blue">🚀 COPY PROMPT AI</button>
+  </div>
+
+  <div class="card">
+    <h2 style="margin:0; color:#10b981">2. EDIT MANUAL & GENERATE</h2>
+    <label>Hasil Dari Gemini (Tempel & Edit Jika Perlu)</label>
+    <textarea id="ai_out" placeholder="Silakan edit manual di sini agar laporan benar-benar rapi..."></textarea>
+    <button onclick="downloadPDF()" class="btn btn-green">📄 DOWNLOAD PDF (VERSI TERBAIK)</button>
+  </div>
+</div>
+
+<div id="pdf-area"></div>
+
+<script>
+let headerImg = null;
+let photoList = [];
+
+function readHeader(f) {
+    const r = new FileReader();
+    r.onload = (e) => headerImg = e.target.result;
+    r.readAsDataURL(f[0]);
+}
+
+function readPhotos(fs) {
+    photoList = [];
+    Array.from(fs).forEach(f => {
+        const r = new FileReader();
+        r.onload = (e) => {
+            photoList.push({name: f.name, data: e.target.result});
+            document.getElementById('status').innerText = photoList.length + " Foto berhasil dimuat.";
+        }
+        r.readAsDataURL(f);
+    });
+}
+
+function copyPrompt() {
+    const text = `Buatkan laporan Berita Acara Kejadian profesional. Pelapor: ${document.getElementById('p1').value}. Penerima: ${document.getElementById('p2').value}. Tuliskan hanya isi laporannya saja di dalam blok kode.`;
+    navigator.clipboard.writeText(text);
+    alert("Prompt Berhasil Disalin!");
+    window.open('https://gemini.google.com/app', '_blank');
+}
+
+async function downloadPDF() {
+    const content = document.getElementById('ai_out').value;
+    const area = document.getElementById('pdf-area');
+    if(!content) return alert("Tempel dulu hasil dari Gemini!");
+
+    area.innerHTML = `
+        <div class="pdf-page">
+            <div class="pdf-header">
+                ${headerImg ? `<img src="${headerImg}" class="pdf-logo">` : ''}
+                <div class="pdf-title-text">
+                    <h1>Berita Acara Kejadian</h1>
+                    <p>No: BAK/SEC/${Date.now()}</p>
+                </div>
+            </div>
+
+            <div class="section-title">I. ISI LAPORAN / KRONOLOGI</div>
+            <div class="content-body">${content}</div>
+
+            ${photoList.length > 0 ? `
+            <div class="section-title">II. LAMPIRAN DOKUMENTASI</div>
+            ${photoList.map(p => `
+                <div class="photo-block">
+                    <img src="${p.data}">
+                    <div class="photo-caption">Gbr: ${p.name}</div>
+                </div>
+            `).join('')}
+            ` : ''}
+
+            <div class="sig-container">
+                <div class="sig-box">
+                    <p>Dibuat Oleh,</p>
+                    <div class="sig-line"></div>
+                    <b>${document.getElementById('p1').value || '..........'}</b>
+                </div>
+                <div class="sig-box">
+                    <p>Diterima Oleh,</p>
+                    <div class="sig-line"></div>
+                    <b>${document.getElementById('p2').value || '..........'}</b>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const opt = {
+        margin: 0, /* Kontrol margin lewat CSS .pdf-page agar lebih akurat */
+        filename: 'Laporan_BAK_Final.pdf',
+        image: { type: 'jpeg', quality: 1.0 },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    area.style.display = 'block';
+    await html2pdf().set(opt).from(area).save();
+    area.style.display = 'none';
+}
+</script>
+</body>
+</html>
