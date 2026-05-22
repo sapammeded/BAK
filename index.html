@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>BAK Professional - Enterprise Incident Report System</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
@@ -223,190 +223,9 @@
         }
         
         .delete-foto-btn:hover {
-            background: #b91c1c;
-            transform: scale(0.97);
-        }
-
-        /* ========== PDF RENDER ENGINE (A4 + ANTI-POTONG) ========== */
-        #pdf-area {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
-            display: block;
-        }
-
-        .pdf-render {
-            width: 794px;
-            background: white;
-            color: black;
-            padding: 50px 60px;
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 12pt;
-            line-height: 1.6;
-            box-sizing: border-box;
-        }
-
-        .pdf-header {
-            text-align: center;
-            margin-bottom: 25px;
-            border-bottom: 3px double #000;
-            padding-bottom: 15px;
-        }
-
-        .pdf-header h1 {
-            font-size: 18pt;
-            margin: 5px 0;
-            letter-spacing: 0.5px;
-            font-weight: bold;
-        }
-
-        .pdf-header .nomor-bak {
-            font-size: 11pt;
-            margin-top: 5px;
-            color: #000;
-            font-weight: bold;
-        }
-
-        .pdf-logo {
-            max-height: 70px;
-            max-width: 200px;
-            margin-bottom: 10px;
-            object-fit: contain;
-        }
-
-        .pdf-section {
-            margin: 20px 0;
-        }
-
-        .pdf-section-title {
-            font-size: 12pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #000;
-            padding-bottom: 3px;
-        }
-
-        .pdf-content {
-            text-align: justify;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            margin-bottom: 15px;
-        }
-
-        .pdf-foto-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 15px;
-        }
-
-        .pdf-foto-item {
-            border: 1px solid #000;
-            padding: 8px;
-            text-align: center;
-            background: #fff;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-
-        /* PATCH WAJIB #1: ANTI TERPOTONG & STABIL MULTIPAGE */
-        .pdf-foto-img {
-            width: 100%;
-            height: auto;
-            max-height: 320px;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto 8px;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-
-        .pdf-foto-keterangan {
-            font-style: italic;
-            font-size: 10pt;
-            color: #000;
-            text-align: left;
-            white-space: pre-wrap;
-            border-top: 1px solid #ccc;
-            padding-top: 5px;
-        }
-
-.pdf-foto-page {
-
-    page-break-before: always;
-
-    min-height: 900px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    padding: 40px;
-
-    text-align: center;
-
-    background: #ffffff;
+    background: #b91c1c;
+    transform: scale(0.97);
 }
-
-.pdf-foto-page-title {
-
-    font-size: 16pt;
-    font-weight: bold;
-
-    margin-bottom: 30px;
-
-    border-bottom: 2px solid #000;
-
-    padding-bottom: 10px;
-
-    width: 100%;
-}
-
-.pdf-foto-center-wrapper {
-
-    width: 100%;
-
-    display: flex;
-    flex-direction: column;
-
-    justify-content: center;
-    align-items: center;
-}
-
-.pdf-foto-single {
-
-    max-width: 90%;
-
-    max-height: 650px;
-
-    object-fit: contain;
-
-    border: 1px solid #000;
-
-    padding: 10px;
-
-    background: #fff;
-}
-
-.pdf-foto-single-keterangan {
-
-    margin-top: 25px;
-
-    max-width: 80%;
-
-    font-size: 11pt;
-
-    line-height: 1.8;
-
-    text-align: center;
-
-    border-top: 1px solid #999;
-
-    padding-top: 15px;
-}
-
 
         /* STRUKTUR TTD FORMAT A RESMI - DILINDUNGI */
         .ttd-format-a {
@@ -689,8 +508,6 @@
     </div>
 </div>
 
-<div id="pdf-area"></div>
-
 <script>
     // ==================== GLOBAL CORE VARIABLES (PRESERVE ENGINE) ====================
     let fotoDataList = []; 
@@ -842,7 +659,7 @@ if(fotoDataList.length >= 20){
         // COMPRESS JPEG AGAR PDF TIDAK BERAT
         const compressedData = canvas.toDataURL(
             'image/jpeg',
-            0.82
+            0.92
         );
 
         fotoDataList.push({
@@ -980,153 +797,299 @@ Gunakan bahasa Indonesia baku, formal, gaya dokumen internal perusahaan. Akhiri 
         const jabatanPenerima = document.getElementById('jabatan_p2').value || "Penerima Laporan";
         const namaAtasan = document.getElementById('nama_atasan').value || "...........................";
         const jabatanAtasan = document.getElementById('jabatan_atasan').value || "Atasan / Mengetahui";
-        
-        // Lampiran foto dengan anti-potong + page-break-inside
-        let fotoHtml = '';
-
-if (fotoDataList.length > 0) {
-
-    fotoDataList.forEach((foto, index) => {
-
-        let ket = foto.keterangan || '(Tanpa keterangan)';
-
-        fotoHtml += `
-
-        <div class="pdf-foto-page">
-
-            <div class="pdf-foto-page-title">
-                LAMPIRAN FOTO DOKUMENTASI ${index + 1}
-            </div>
-
-            <div class="pdf-foto-center-wrapper">
-
-                <img 
-                    src="${foto.dataURL}" 
-                    class="pdf-foto-single"
-                    crossorigin="anonymous"
-                >
-
-                <div class="pdf-foto-single-keterangan">
-                    <b>Keterangan Bukti:</b><br><br>
-                    ${escapeHtml(ket).replace(/\n/g, '<br>')}
-                </div>
-
-            </div>
-
-        </div>
-
-        `;
-    });
-}
-        
-        // TTD STRUCTURE PROFESIONAL (PRESERVE FORMAT A)
-        const ttdHtml = `
-            <div class="pdf-section">
-                <div class="pdf-section-title">III. PENGESAHAN</div>
-                <table class="ttd-table">
-                    <tr>
-                        <td>
-                            <div class="ttd-box">
-                                <div><b>Pihak I (Pelapor)</b></div>
-                                <div class="ttd-space">
-                                    ${ttdPelaporBase64 ? `<img src="${ttdPelaporBase64}" class="ttd-sign-img">` : ''}
-                                </div>
-                                <div class="ttd-line"></div>
-                                <div class="ttd-nama">${namaPelapor}</div>
-                                <div class="ttd-jabatan">${jabatanPelapor}</div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="ttd-box">
-                                <div><b>Pihak II (Penerima)</b></div>
-                                <div class="ttd-space">
-                                    ${ttdPenerimaBase64 ? `<img src="${ttdPenerimaBase64}" class="ttd-sign-img">` : ''}
-                                </div>
-                                <div class="ttd-line"></div>
-                                <div class="ttd-nama">${namaPenerima}</div>
-                                <div class="ttd-jabatan">${jabatanPenerima}</div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: center; padding-top: 30px;">
-                            <div class="ttd-box" style="width: 50%; margin: 0 auto;">
-                                <div><b>Mengetahui,</b></div>
-                                <div class="ttd-space"></div>
-                                <div class="ttd-line"></div>
-                                <div class="ttd-nama">${namaAtasan}</div>
-                                <div class="ttd-jabatan">${jabatanAtasan}</div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        `;
-        
-        const headerLogoHtml = headerLogoData ? `<img src="${headerLogoData}" class="pdf-logo">` : '';
-        const fullPdfHtml = `
-            <div class="pdf-render" id="render-target">
-                <div class="pdf-header">
-                    ${headerLogoHtml}
-                    <h1>BERITA ACARA KEJADIAN (BAK)</h1>
-                    <div class="nomor-bak">No. BAK/${new Date().getFullYear()}/SEC/${Math.floor(1000 + Math.random() * 9000)}</div>
-                </div>
-                <div class="pdf-section">
-                    <div class="pdf-section-title">I. LAPORAN RESMI KEJADIAN</div>
-                    <div class="pdf-content">${laporanText.replace(/\n/g, '<br>')}</div>
-                </div>
-                ${ttdHtml}
-                ${fotoHtml}
-            </div>
-        `;
-        
-        const pdfArea = document.getElementById('pdf-area');
-        pdfArea.innerHTML = fullPdfHtml;
-        const targetElement = document.getElementById('render-target');
-        
+          
         try {
-            const canvas = await html2canvas(targetElement, {
-                scale: 2.2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff',
-                onclone: (clonedDoc, element) => {}
-            });
-            
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
-            const imgHeightInMm = (canvasHeight * pdfWidth) / canvasWidth;
-            
-            let heightLeft = imgHeightInMm;
-            let position = 0;
-            
-            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInMm, undefined, 'FAST');
-            heightLeft -= pdfHeight;
-            
-            while (heightLeft > 0) {
-                position = heightLeft - imgHeightInMm;
-                if(Math.abs(position) < imgHeightInMm - 1) {
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeightInMm, undefined, 'FAST');
-                }
-                heightLeft -= pdfHeight;
-            }
-            
-            const fileDate = document.getElementById('tgl').value || new Date().toISOString().slice(0,10);
-            pdf.save(`BAK_RESMI_${namaPelapor.replace(/[^a-z0-9]/gi, '_')}_${fileDate}.pdf`);
-        } catch(err) {
-            alert("Error generating PDF: " + err.message);
-            console.error(err);
-        } finally {
-            pdfArea.innerHTML = '';
+
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    const pageWidth = 210;
+    const margin = 15;
+
+    let y = 20;
+
+    // ================= HEADER =================
+
+    pdf.setFont("times", "bold");
+    pdf.setFontSize(16);
+
+    pdf.text(
+        "BERITA ACARA KEJADIAN (BAK)",
+        pageWidth / 2,
+        y,
+        { align: 'center' }
+    );
+
+    y += 12;
+
+    // ================= NOMOR =================
+
+    pdf.setFont("times", "normal");
+    pdf.setFontSize(11);
+
+    const fileDate =
+        document.getElementById('tgl').value ||
+        new Date().toISOString().slice(0,10);
+
+    pdf.text(
+        `No: BAK/${Date.now()}`,
+        margin,
+        y
+    );
+
+    y += 10;
+
+    // ================= ISI =================
+
+    const splitText =
+        pdf.splitTextToSize(
+            laporanText,
+            180
+        );
+
+    splitText.forEach(line => {
+
+        if (y > 270) {
+            pdf.addPage();
+            y = 20;
         }
+
+        pdf.text(
+            line,
+            margin,
+            y
+        );
+
+        y += 6;
+    });
+
+    // ================= TTD =================
+
+pdf.addPage();
+
+pdf.setFont("times", "bold");
+pdf.setFontSize(14);
+
+pdf.text(
+    "PENGESAHAN",
+    pageWidth / 2,
+    20,
+    { align: 'center' }
+);
+
+// ================= MENGETAHUI =================
+
+pdf.setFont("times", "normal");
+pdf.setFontSize(12);
+
+pdf.text(
+    "Mengetahui,",
+    pageWidth / 2,
+    35,
+    { align: 'center' }
+);
+
+pdf.text(
+    jabatanAtasan,
+    pageWidth / 2,
+    42,
+    { align: 'center' }
+);
+
+// ================= GARIS ATASAN =================
+
+pdf.line(75, 95, 135, 95);
+
+pdf.text(
+    namaAtasan,
+    pageWidth / 2,
+    102,
+    { align: 'center' }
+);
+
+// ================= PIHAK =================
+
+pdf.text(
+    "Pihak I",
+    50,
+    125,
+    { align: 'center' }
+);
+
+pdf.text(
+    "Pihak II",
+    160,
+    125,
+    { align: 'center' }
+);
+
+// ===== TTD PELAPOR =====
+
+if (ttdPelaporBase64) {
+
+    pdf.addImage(
+        ttdPelaporBase64,
+        'PNG',
+        20,
+        130,
+        60,
+        30
+    );
+}
+
+// ===== TTD PENERIMA =====
+
+if (ttdPenerimaBase64) {
+
+    pdf.addImage(
+        ttdPenerimaBase64,
+        'PNG',
+        130,
+        130,
+        60,
+        30
+    );
+}
+
+// ================= GARIS NAMA =================
+
+pdf.line(20, 175, 80, 175);
+
+pdf.line(130, 175, 190, 175);
+
+// ================= NAMA =================
+
+pdf.setFontSize(11);
+
+pdf.text(
+    namaPelapor,
+    50,
+    182,
+    { align: 'center' }
+);
+
+pdf.text(
+    namaPenerima,
+    160,
+    182,
+    { align: 'center' }
+);
+
+// ================= JABATAN =================
+
+pdf.setFontSize(10);
+
+pdf.text(
+    jabatanPelapor,
+    50,
+    188,
+    { align: 'center' }
+);
+
+pdf.text(
+    jabatanPenerima,
+    160,
+    188,
+    { align: 'center' }
+);
+
+    // ================= FOTO =================
+
+    for (let i = 0; i < fotoDataList.length; i++) {
+
+        const foto = fotoDataList[i];
+
+        pdf.addPage();
+
+        pdf.setFont("times", "bold");
+        pdf.setFontSize(14);
+
+        pdf.text(
+            `LAMPIRAN FOTO ${i + 1}`,
+            pageWidth / 2,
+            15,
+            { align: 'center' }
+        );
+
+        // ===== AUTO SCALE FOTO =====
+
+        const imgProps =
+            pdf.getImageProperties(
+                foto.dataURL
+            );
+
+        const maxWidth = 180;
+        const maxHeight = 140;
+
+        let imgWidth = maxWidth;
+        let imgHeight =
+            (imgProps.height * imgWidth) /
+            imgProps.width;
+
+        if (imgHeight > maxHeight) {
+
+            imgHeight = maxHeight;
+
+            imgWidth =
+                (imgProps.width * imgHeight) /
+                imgProps.height;
+        }
+
+        const x =
+            (210 - imgWidth) / 2;
+
+        pdf.addImage(
+            foto.dataURL,
+            'JPEG',
+            x,
+            25,
+            imgWidth,
+            imgHeight,
+            undefined,
+            'FAST'
+        );
+
+        // ===== KETERANGAN =====
+
+        pdf.setFont("times", "normal");
+        pdf.setFontSize(11);
+
+        const ket =
+            foto.keterangan ||
+            '(Tanpa keterangan)';
+
+        const ketSplit =
+            pdf.splitTextToSize(
+                ket,
+                170
+            );
+
+        pdf.text(
+            ketSplit,
+            15,
+            190
+        );
     }
+
+    // ================= SAVE =================
+
+    pdf.save(
+        `BAK_RESMI_${
+            namaPelapor.replace(/[^a-z0-9]/gi, '_')
+        }_${fileDate}.pdf`
+    );
+
+} catch(err) {
+
+    alert(
+        "Error generating PDF: " +
+        err.message
+    );
+
+    console.error(err);
+}
+}
 </script>
 </body>
 </html>
