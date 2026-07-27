@@ -1,0 +1,3608 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>BAK Professional - Enterprise Incident Report System</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f172a;
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+
+        .panel h2 {
+            color: #3b82f6;
+            margin-bottom: 16px;
+            font-size: 20px;
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            display: block;
+            margin-top: 14px;
+            margin-bottom: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+        }
+
+        textarea#ai_out {
+            min-height: 400px;
+            font-family: 'Courier New', 'SF Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            border: 2px solid #3b82f6;
+            background: #070b14;
+            resize: vertical;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .flex-row > div {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .btn-blue {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-blue:hover {
+            background: #1d4ed8;
+            transform: scale(0.98);
+        }
+
+        .btn-green {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-green:hover {
+            background: #059669;
+            transform: scale(0.98);
+        }
+
+        .btn-purple {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .btn-purple:hover {
+            background: #6d28d9;
+            transform: scale(0.98);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #3b82f6;
+            color: #93c5fd;
+        }
+
+        .btn-outline:hover {
+            background: rgba(59,130,246,0.12);
+        }
+
+        .profile-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .profile-row > * {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .profile-row button {
+            width: auto;
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        input[type="color"] {
+            padding: 4px;
+            height: 44px;
+            cursor: pointer;
+        }
+
+        .saksi-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            align-items: center;
+        }
+
+        .saksi-row input {
+            flex: 1;
+        }
+
+        .draft-badge {
+            display: inline-block;
+            font-size: 11px;
+            color: #10b981;
+            margin-top: 8px;
+        }
+
+        .file-status {
+            font-size: 12px;
+            margin-top: 8px;
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        /* TTD CANVAS ENTERPRISE */
+        .sig-container {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 12px;
+            margin-top: 12px;
+            border: 1px solid #334155;
+        }
+
+        .sig-canvas-wrapper {
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #cbd5e1;
+            cursor: crosshair;
+            overflow: hidden;
+        }
+
+        .ttd-canvas {
+            display: block;
+            width: 100%;
+            height: 150px;
+            background: white;
+            border-radius: 10px;
+            touch-action: none;
+        }
+
+        .sig-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .small-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+            background: #334155;
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .small-btn:hover {
+            background: #475569;
+            transform: translateY(-1px);
+        }
+
+        /* Foto Editor dengan Tombol Delete */
+        .foto-item-editor {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+            position: relative;
+            transition: 0.2s;
+        }
+
+        .foto-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            background: #00000022;
+        }
+
+        .foto-keterangan textarea {
+            font-size: 12px;
+            min-height: 70px;
+        }
+        
+        .delete-foto-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .delete-foto-btn:hover {
+    background: #b91c1c;
+    transform: scale(0.97);
+}
+
+        /* STRUKTUR TTD FORMAT A RESMI - DILINDUNGI */
+        .ttd-format-a {
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .ttd-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            table-layout: fixed;
+        }
+
+        .ttd-table td {
+            text-align: center;
+            vertical-align: top;
+            width: 50%;
+            padding: 10px;
+            border: none !important;
+        }
+
+        .ttd-box {
+            display: inline-block;
+            width: 100%;
+            min-height: 140px;
+            text-align: center;
+        }
+
+        .ttd-space {
+    height: 90px;
+    margin: 10px auto;
+    width: 200px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+        .ttd-sign-img {
+    max-width: 180px;
+    max-height: 70px;
+    object-fit: contain;
+
+    display: block;
+    margin: 0 auto;
+
+    position: relative;
+
+    top: auto;
+    left: auto;
+    transform: none;
+}
+
+        .ttd-line {
+            border-bottom: 1px solid #000;
+            width: 85%;
+            margin: 0 auto;
+        }
+
+        .ttd-nama {
+            font-weight: bold;
+            margin-top: 5px;
+            font-size: 11pt;
+        }
+
+        .ttd-jabatan {
+            font-size: 10pt;
+            color: #333;
+        }
+        
+
+/* ================= ENTERPRISE HEADER ================= */
+
+.eims-header {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 18px 22px;
+    background: linear-gradient(135deg, #1e293b, #16213a);
+    border: 1px solid #2b3a55;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.eims-title {
+    color: #f1f5f9;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.eims-subtitle {
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.eims-nav-btn {
+    background: #263449;
+    color: #cbd5e1;
+    border: 1px solid #334155;
+    border-radius: 30px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.eims-nav-btn:hover { background: #334155; }
+
+/* ================= DASHBOARD ================= */
+.eims-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-top: 6px;
+}
+
+.eims-card {
+    background: #1e293b;
+    border: 1px solid #2b3a55;
+    border-radius: 16px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.eims-card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    background: #223049;
+}
+.eims-card .icon { font-size: 28px; margin-bottom: 8px; }
+.eims-card .label { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+.eims-card .sub { font-size: 11px; color: #64748b; margin-top: 4px; }
+
+/* ================= PROGRESS BAR (WIZARD) ================= */
+.eims-progress-wrap { margin-top: 14px; }
+.eims-progress-track {
+    width: 100%;
+    height: 8px;
+    background: #0f172a;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #334155;
+}
+.eims-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg,#3b82f6,#60a5fa);
+    border-radius: 20px;
+    transition: width 0.35s ease;
+}
+.eims-step-dots { display:flex; gap:8px; margin-top:10px; justify-content:center; }
+.eims-step-dot {
+    width: 26px; height: 26px; border-radius: 50%;
+    background:#1e293b; border:1px solid #334155; color:#64748b;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; transition:0.2s;
+}
+.eims-step-dot.active { background:#3b82f6; border-color:#3b82f6; color:#fff; }
+.eims-step-dot.done { background:#10b981; border-color:#10b981; color:#fff; }
+
+/* panel transition for wizard */
+.panel[data-wizard-enabled] { animation: eimsFadeIn 0.3s ease; }
+@keyframes eimsFadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+/* ================= FIELD VALIDATION ================= */
+.eims-field-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239,68,68,0.25) !important;
+}
+.eims-error-msg {
+    color: #f87171;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+/* ================= ARCHIVE / SEARCH ================= */
+.eims-archive-item {
+    background:#0f172a;
+    border:1px solid #334155;
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:10px;
+}
+.eims-archive-item .meta { font-size:11px; color:#64748b; margin-top:4px; }
+.eims-archive-item .title { font-size:13px; font-weight:600; color:#e2e8f0; }
+.eims-archive-actions { display:flex; gap:8px; margin-top:8px; }
+
+/* ================= AUDIT TRAIL ================= */
+.eims-audit-item { display:flex; gap:12px; padding:8px 0; border-bottom:1px dashed #334155; }
+.eims-audit-time { color:#3b82f6; font-size:11px; font-weight:700; min-width:48px; }
+.eims-audit-text { font-size:12px; color:#cbd5e1; }
+
+/* EIMS Prompt Intelligence Engine V4.0 — Output Profile chip styling */
+.op-chip {
+    display:flex; align-items:center; gap:6px;
+    background:#1e293b; border:1px solid #334155; border-radius:20px;
+    padding:6px 12px; font-size:11.5px; color:#cbd5e1; cursor:pointer;
+    user-select:none;
+}
+.op-chip input { accent-color:#3b82f6; cursor:pointer; }
+.op-chip.op-checked { border-color:#3b82f6; background:#1d3352; color:#e2e8f0; }
+.eims-preview-frame {
+    width:100%;
+    height:520px;
+    border:1px solid #334155;
+    border-radius:14px;
+    background:#fff;
+}
+
+        /* MOBILE UX POLISH */
+        @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+            .panel {
+                padding: 16px;
+            }
+            .btn {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            .small-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+            .sig-actions {
+                flex-wrap: wrap;
+            }
+            .flex-row {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="eims-header">
+    <div>
+        <div class="eims-title">Enterprise Incident Management System</div>
+        <div class="eims-subtitle">Dokumentasi &amp; pelaporan kejadian — offline, tanpa server</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="eims-nav-btn" onclick="eimsGoDashboard()">🏠 Dashboard</button>
+        <button type="button" class="eims-nav-btn" onclick="eimsGoWorkspace()">📄 Dokumen</button>
+        <button type="button" class="eims-nav-btn" onclick="eimsGoArchive()">🗄 Arsip</button>
+        <button type="button" class="eims-nav-btn" onclick="eimsGoAudit()">📜 Audit</button>
+        <button type="button" class="eims-nav-btn" onclick="eimsGoExpertAnalysis()">🧠 AI Expert Analysis</button>
+        <button type="button" class="eims-nav-btn" onclick="eimsGoSecurityOps()">🛡 Security Operation Mode</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="panel" id="panelDashboard">
+        <h2>🏢 Dashboard</h2>
+        <div class="eims-dashboard-grid">
+            <div class="eims-card" onclick="eimsNewDocument()">
+                <div class="icon">📄</div>
+                <div class="label">Dokumen Baru</div>
+                <div class="sub">Mulai laporan baru</div>
+            </div>
+            <div class="eims-card" onclick="eimsGoWorkspace()">
+                <div class="icon">📂</div>
+                <div class="label">Draft</div>
+                <div class="sub" id="dashDraftInfo">Lanjutkan draft</div>
+            </div>
+            <div class="eims-card" onclick="eimsGoArchive()">
+                <div class="icon">🗄</div>
+                <div class="label">Arsip</div>
+                <div class="sub" id="dashArchiveInfo">0 dokumen</div>
+            </div>
+            <div class="eims-card" onclick="eimsGoWorkspace(); document.getElementById('templateDokumen').focus();">
+                <div class="icon">📋</div>
+                <div class="label">Template</div>
+                <div class="sub">Template siap pakai</div>
+            </div>
+            <div class="eims-card" onclick="eimsGoWorkspace(); document.getElementById('panelProfil').scrollIntoView({behavior:'smooth'});">
+                <div class="icon">⚙️</div>
+                <div class="label">Pengaturan</div>
+                <div class="sub">Profil &amp; preferensi</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="panelArchive" style="display:none;">
+        <h2>🗄 Arsip Dokumen</h2>
+        <label>Cari Arsip</label>
+        <input id="archiveSearch" placeholder="Cari nomor, nama, lokasi, template, jenis, kata kunci, tahun, organisasi..." oninput="renderArchive()">
+        <div id="archiveResults" style="margin-top:14px;"></div>
+    </div>
+
+    <div class="panel" id="panelAudit" style="display:none;">
+        <h2>📜 Audit Trail</h2>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px;">Riwayat aktivitas dokumen ini (lokal, tanpa internet).</p>
+        <div id="auditList"></div>
+    </div>
+
+    <!-- ================================================================
+         EIMS Expert Analysis Engine V5.0
+         Tab terpisah dari Incident Report. Security/petugas lapangan hanya
+         mendokumentasikan fakta di tab Dokumen (Incident Report Engine).
+         Tab ini mengambil fakta tersebut lalu meminta AI menjawab sebagai
+         Subject Matter Expert (Specialist) sesuai domain teknis kejadian,
+         BUKAN sebagai Security. Analisa teknis (root cause, risk, CAPA)
+         hanya boleh terjadi di sini, tidak di Incident Report.
+         ================================================================ -->
+    <div class="panel" id="panelExpertAnalysis" style="display:none;">
+        <h2>🧠 AI Expert Analysis</h2>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px;">
+            Fakta kejadian diambil dari Incident Report (tab Dokumen). Tab ini hanya menyusun permintaan analisa teknis kepada AI sebagai Subject Matter Expert — bukan Security.
+        </p>
+
+        <label>🧑‍🔬 Pilih Specialist (Auto Mengikuti Template, Bisa Diubah Manual)</label>
+        <select id="expertSpecialistSelect" onchange="ExpertAnalysisEngine.onSpecialistChange()"></select>
+        <p style="font-size:11px;color:#94a3b8;margin-top:6px;" id="expertSpecialistDesc"></p>
+
+        <label style="margin-top:18px;">🧩 Output Profile — Bagian yang Diminta dari AI Specialist</label>
+        <div id="expertOutputProfileContainer" class="flex-row" style="flex-wrap:wrap;gap:8px 14px;margin-bottom:10px;"></div>
+
+        <div class="profile-row">
+            <button type="button" class="btn-blue" style="width:auto;" onclick="ExpertAnalysisEngine.generatePrompt()">⚙️ Generate Prompt</button>
+            <button type="button" class="btn-outline" style="width:auto;" onclick="ExpertAnalysisEngine.copyPrompt()">📋 Copy Prompt</button>
+            <button type="button" class="btn-purple" style="width:auto;" onclick="ExpertAnalysisEngine.openWorkspace()">🌐 Open AI Workspace</button>
+        </div>
+
+        <label style="margin-top:18px;">👁️ Prompt Preview</label>
+        <textarea id="expertPromptPreview" readonly style="min-height:280px;font-family:'Courier New',monospace;font-size:12px;line-height:1.6;"></textarea>
+
+        <div id="expertPromptStats" style="font-size:11px;color:#94a3b8;margin-top:10px;"></div>
+    </div>
+
+    <!-- ================================================================
+         Security Operation Mode Engine
+         Tab baru — TIDAK mengubah UI/fitur lama. Menambahkan pilihan mode
+         kerja untuk Security: Mode 1 (Security Report saja, fakta murni)
+         atau Mode 2 (Security Report + SME Analysis otomatis mengikuti
+         Template/Specialist). Dibangun di atas engine yang sudah ada
+         (PromptCompiler = Security Report Engine, ExpertPromptCompilerEngine
+         = SME Specialist Engine) — bukan engine baru yang terpisah.
+         ================================================================ -->
+    <div class="panel" id="panelSecurityOps" style="display:none;">
+        <h2>🛡 Security Operation Mode</h2>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px;">
+            Fakta kejadian diambil dari Incident Report (tab Dokumen). Pilih mode kerja sesuai kompetensi Anda.
+        </p>
+
+        <label>🎚️ Pilih Mode</label>
+        <div class="flex-row">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <input type="radio" name="secOpsMode" id="secOpsMode1" value="mode1" checked style="width:auto;" onchange="SecurityOperationModeEngine.onModeChange()">
+                <label style="margin:0;text-transform:none;font-size:13px;">Mode 1 — Security Report (fakta saja)</label>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <input type="radio" name="secOpsMode" id="secOpsMode2" value="mode2" style="width:auto;" onchange="SecurityOperationModeEngine.onModeChange()">
+                <label style="margin:0;text-transform:none;font-size:13px;">Mode 2 — Security + SME Analysis</label>
+            </div>
+        </div>
+
+        <div id="secOpsSmeBlock" style="display:none;">
+            <label style="margin-top:18px;">🧑‍🔬 Pilih Specialist (Auto Mengikuti Template, Bisa Diubah Manual)</label>
+            <select id="secOpsSpecialistSelect" onchange="SecurityOperationModeEngine.onSpecialistChange()"></select>
+
+            <label style="margin-top:18px;">🧩 Output Profile — Bagian SME Analysis</label>
+            <div id="secOpsOutputProfileContainer" class="flex-row" style="flex-wrap:wrap;gap:8px 14px;margin-bottom:10px;"></div>
+        </div>
+
+        <div class="profile-row" style="margin-top:14px;">
+            <button type="button" class="btn-blue" style="width:auto;" onclick="SecurityOperationModeEngine.generatePrompt()">⚙️ Generate Prompt</button>
+            <button type="button" class="btn-outline" style="width:auto;" onclick="SecurityOperationModeEngine.copyPrompt()">📋 Copy Prompt</button>
+            <button type="button" class="btn-purple" style="width:auto;" onclick="SecurityOperationModeEngine.generateAndOpenWorkspace()">🚀 Generate Prompt Enterprise & Buka AI</button>
+        </div>
+
+        <label style="margin-top:18px;">👁️ Prompt Preview</label>
+        <textarea id="secOpsPromptPreview" readonly style="min-height:280px;font-family:'Courier New',monospace;font-size:12px;line-height:1.6;"></textarea>
+        <div id="secOpsPromptStats" style="font-size:11px;color:#94a3b8;margin-top:10px;"></div>
+    </div>
+
+    <div id="eimsWorkspace" style="display:none;">
+
+    <div class="panel" id="panelProfil">
+        <h2>🏛️ 0. PROFIL ORGANISASI & PENGATURAN DOKUMEN</h2>
+
+        <label>Profil Tersimpan (Multi-Organisasi)</label>
+        <select id="profilList" onchange="loadProfile(this.value)">
+            <option value="">-- Belum ada profil dipilih --</option>
+        </select>
+        <div class="profile-row">
+            <input id="profilNamaBaru" placeholder="Nama profil (contoh: Karang Taruna RW 01)">
+            <button type="button" onclick="saveProfile()" class="btn-blue">💾 Simpan Profil</button>
+            <button type="button" onclick="deleteProfile()" class="btn-outline" style="color:#f87171;border-color:#f87171;">🗑️ Hapus Profil</button>
+        </div>
+
+        <div class="flex-row">
+            <div>
+                <label>Jenis Dokumen</label>
+                <select id="jenisDokumen" onchange="applyJenisDokumen()">
+                    <option value="BERITA ACARA">Berita Acara</option>
+                    <option value="BERITA ACARA KEJADIAN (BAK)">Berita Acara Kejadian (BAK)</option>
+                    <option value="INCIDENT REPORT">Incident Report</option>
+                    <option value="LAPORAN INVESTIGASI">Laporan Investigasi</option>
+                    <option value="LAPORAN HARIAN">Laporan Harian</option>
+                    <option value="LAPORAN KHUSUS">Laporan Khusus</option>
+                    <option value="SURAT PERNYATAAN">Surat Pernyataan</option>
+                    <option value="SURAT KETERANGAN">Surat Keterangan</option>
+                    <option value="LAPORAN KEGIATAN">Laporan Kegiatan</option>
+                    <option value="BERITA ACARA SERAH TERIMA">Serah Terima</option>
+                    <option value="CUSTOM">Custom (isi manual di Judul Dokumen)</option>
+                </select>
+            </div>
+            <div>
+                <label>Warna Aksen Header</label>
+                <input type="color" id="accentColor" value="#c80000">
+            </div>
+        </div>
+
+        <div><label>Format Nomor Dokumen Otomatis</label><input id="formatNomor" value="{JENIS}/{ORG}/{ROMAWI}/{TAHUN}/{URUT}" placeholder="Gunakan token: {JENIS} {ORG} {ROMAWI} {TAHUN} {URUT}"></div>
+
+        <div class="flex-row">
+            <div style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+                <input type="checkbox" id="useWatermark" style="width:auto;">
+                <label style="margin:0;text-transform:none;font-size:13px;">Tambahkan Watermark</label>
+            </div>
+            <div><label>Teks Watermark</label><input id="watermarkText" value="DRAFT"></div>
+        </div>
+
+        <hr style="border-color:#334155;margin:18px 0;">
+
+        <div class="flex-row">
+            <div>
+                <label>Klasifikasi Dokumen</label>
+                <select id="classification" onchange="toggleCustomField('classification','classificationCustom')">
+                    <option value="">-- Tidak Ditampilkan --</option>
+                    <option value="PUBLIC">Public</option>
+                    <option value="INTERNAL">Internal</option>
+                    <option value="CONFIDENTIAL">Confidential</option>
+                    <option value="RESTRICTED">Restricted</option>
+                    <option value="CUSTOM">Custom</option>
+                </select>
+                <input id="classificationCustom" placeholder="Tulis klasifikasi custom" style="display:none;margin-top:8px;">
+            </div>
+            <div>
+                <label>Tipe Organisasi</label>
+                <select id="orgType" onchange="toggleCustomField('orgType','orgTypeCustom')">
+                    <option value="">-- Pilih --</option>
+                    <option value="Perusahaan">Perusahaan</option>
+                    <option value="Sekolah">Sekolah</option>
+                    <option value="Kampus">Kampus</option>
+                    <option value="Pemerintahan">Pemerintahan</option>
+                    <option value="Rumah Sakit">Rumah Sakit</option>
+                    <option value="Yayasan">Yayasan</option>
+                    <option value="Komunitas">Komunitas</option>
+                    <option value="Security">Security</option>
+                    <option value="Data Center">Data Center</option>
+                    <option value="CUSTOM">Custom</option>
+                </select>
+                <input id="orgTypeCustom" placeholder="Tulis tipe organisasi custom" style="display:none;margin-top:8px;">
+            </div>
+        </div>
+
+        <div class="flex-row">
+            <div><label>Revisi</label><input id="docRevisi" placeholder="Contoh: Rev. 0"></div>
+            <div><label>Versi</label><input id="docVersi" placeholder="Contoh: v1.0"></div>
+        </div>
+
+        <label>🎨 Tema Tampilan</label>
+        <select id="temaPreset" onchange="applyTemaPreset()">
+            <option value="merah">Merah Korporat (Bawaan)</option>
+            <option value="biru">Biru Profesional</option>
+            <option value="hijau">Hijau Institusi</option>
+            <option value="mono">Monokrom</option>
+            <option value="custom">Custom Theme</option>
+        </select>
+        <div class="flex-row" id="customThemeRow" style="display:none;">
+            <div><label>Warna Utama</label><input type="color" id="themePrimary" value="#3b82f6"></div>
+            <div><label>Font PDF</label>
+                <select id="pdfFont">
+                    <option value="times">Times Roman</option>
+                    <option value="helvetica">Helvetica</option>
+                    <option value="courier">Courier</option>
+                </select>
+            </div>
+        </div>
+
+        <label>🤖 AI Workspace</label>
+        <select id="aiWorkspace" onchange="toggleCustomAI()">
+            <option value="https://chat.openai.com">ChatGPT</option>
+            <option value="https://gemini.google.com/app">Gemini</option>
+            <option value="https://claude.ai/new">Claude</option>
+            <option value="https://grok.com">Grok</option>
+            <option value="https://chat.deepseek.com">DeepSeek</option>
+            <option value="https://copilot.microsoft.com">Copilot</option>
+            <option value="https://chat.qwen.ai">Qwen</option>
+            <option value="CUSTOM">Custom AI</option>
+        </select>
+        <div class="flex-row" id="customAIRow" style="display:none;">
+            <div><label>Nama AI</label><input id="customAINama" placeholder="Nama AI favorit"></div>
+            <div><label>URL AI</label><input id="customAIUrl" placeholder="https://..."></div>
+        </div>
+
+        <hr style="border-color:#334155;margin:18px 0;">
+
+        <label>📄 Elemen PDF (Aktif/Nonaktif)</label>
+        <div class="flex-row">
+            <div style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pdfElCover" style="width:auto;"><label style="margin:0;text-transform:none;font-size:13px;">Cover Halaman Terpisah</label></div>
+            <div style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pdfElLogo" checked style="width:auto;"><label style="margin:0;text-transform:none;font-size:13px;">Logo Header</label></div>
+        </div>
+        <div class="flex-row">
+            <div style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pdfElNomor" checked style="width:auto;"><label style="margin:0;text-transform:none;font-size:13px;">Nomor Dokumen</label></div>
+            <div style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pdfElFooter" checked style="width:auto;"><label style="margin:0;text-transform:none;font-size:13px;">Footer Halaman</label></div>
+        </div>
+        <div class="flex-row">
+            <div style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pdfElQr" style="width:auto;"><label style="margin:0;text-transform:none;font-size:13px;">QR Verifikasi</label></div>
+            <div style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="pdfElClassification" style="width:auto;"><label style="margin:0;text-transform:none;font-size:13px;">Tampilkan Klasifikasi</label></div>
+        </div>
+
+        <hr style="border-color:#334155;margin:18px 0;">
+
+        <label>🧩 Dashboard Saya (Tampilkan / Sembunyikan Panel)</label>
+        <div class="flex-row">
+            <div style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="showPanelData" checked style="width:auto;" onchange="applyDashboardVisibility()"><label style="margin:0;text-transform:none;font-size:13px;">Panel Data Kejadian</label></div>
+            <div style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="showPanelEdit" checked style="width:auto;" onchange="applyDashboardVisibility()"><label style="margin:0;text-transform:none;font-size:13px;">Panel Edit & Lampiran</label></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+            <input type="checkbox" id="wizardMode" style="width:auto;" onchange="toggleWizardMode()">
+            <label style="margin:0;text-transform:none;font-size:13px;">Aktifkan Mode Wizard (Bertahap, Step Fleksibel)</label>
+        </div>
+        <div id="wizardProgressWrap" class="eims-progress-wrap" style="display:none;">
+            <div class="eims-progress-track"><div id="wizardProgressFill" class="eims-progress-fill" style="width:0%;"></div></div>
+            <div id="wizardStepDots" class="eims-step-dots"></div>
+        </div>
+        <div id="wizardNav" style="display:none;margin-top:10px;gap:10px;" class="flex-row">
+            <button type="button" class="btn-outline" style="width:auto;padding:8px 14px;border-radius:10px;" onclick="wizardPrev()">⬅️ Sebelumnya</button>
+            <span id="wizardStepLabel" style="align-self:center;font-size:13px;color:#94a3b8;"></span>
+            <button type="button" class="btn-outline" style="width:auto;padding:8px 14px;border-radius:10px;" onclick="wizardNext()">Selanjutnya ➡️</button>
+        </div>
+
+        <p class="draft-badge" id="draftStatus"></p>
+    </div>
+
+    <div class="panel" id="panelData">
+        <h2>📋 1. DATA KEJADIAN (INCIDENT REPORT)</h2>
+        
+        <div class="flex-row">
+            <div><label>Tanggal Kejadian</label><input type="date" id="tgl"></div>
+            <div><label>Waktu</label><input type="time" id="jam"></div>
+        </div>
+        
+        <div class="flex-row">
+            <div><label>Pelapor (Pihak I)</label><input id="nama_p1" placeholder="Nama Lengkap Pelapor"></div>
+            <div><label>Jabatan Pelapor</label><input id="jabatan_p1" placeholder="Jabatan / Divisi"></div>
+        </div>
+        
+        <div class="flex-row">
+            <div><label>Penerima Laporan (Pihak II)</label><input id="nama_p2" placeholder="Nama Penerima"></div>
+            <div><label>Jabatan Penerima</label><input id="jabatan_p2" placeholder="Jabatan / Divisi"></div>
+        </div>
+        
+        <div class="flex-row">
+            <div><label>Nama Atasan (Mengetahui)</label><input id="nama_atasan" placeholder="Contoh: HRD Manager / Site Manager"></div>
+            <div><label>Jabatan Atasan</label><input id="jabatan_atasan" placeholder="Contoh: Kepala Camp / Manajer Operasional"></div>
+        </div>
+        
+        <label>📁 Template Dokumen (Percepatan Kerja)</label>
+        <select id="templateDokumen" onchange="applyTemplateDokumen(this.value)">
+            <option value="">-- Pilih Template / Custom --</option>
+            <optgroup label="Template Bawaan" id="templateBawaanGroup">
+                <option value="Kehilangan Barang">Kehilangan Barang</option>
+                <option value="Pencurian">Pencurian</option>
+                <option value="Kebakaran">Kebakaran</option>
+                <option value="Kecelakaan Kerja">Kecelakaan Kerja</option>
+                <option value="Pelanggaran SOP">Pelanggaran SOP</option>
+                <option value="Fire Alarm">Fire Alarm</option>
+                <option value="FM200">FM200</option>
+                <option value="Security">Security</option>
+                <option value="Visitor">Visitor</option>
+                <option value="Data Center">Data Center</option>
+                <option value="Serah Terima">Serah Terima</option>
+            </optgroup>
+            <optgroup label="Template Saya (Custom)" id="templateCustomGroup"></optgroup>
+        </select>
+        <div class="profile-row">
+            <button type="button" class="small-btn" onclick="buatTemplateCustom()">➕ Buat Template Custom</button>
+            <button type="button" class="small-btn" onclick="hapusTemplateCustom()">🗑️ Hapus Template Custom Ini</button>
+        </div>
+
+        <div id="quickFillContainer"></div>
+
+        <div><label>Lokasi Kejadian</label><input id="lokasi" placeholder="Lokasi spesifik (Area, Gedung, Lantai)"></div>
+        <div><label>Kronologi Singkat / Inti Masalah</label><textarea id="ket" style="height:80px" placeholder="Ceritakan kronologi awal, apa yang terjadi, siapa saja yang terlibat..." oninput="scheduleLivePreview()"></textarea></div>
+        
+        <label>🏢 Header Dokumen (Opsional)</label>
+        <div><label>Judul Dokumen</label><input id="judulDokumen" value="BERITA ACARA KEJADIAN (BAK)" placeholder="Contoh: BERITA ACARA KEJADIAN (BAK)"></div>
+        <div class="flex-row">
+            <div><label>Logo Kiri</label><input type="file" id="headerLogoLeft" accept="image/*"></div>
+            <div><label>Logo Kanan</label><input type="file" id="headerLogoRight" accept="image/*"></div>
+        </div>
+        <div><label>Nama Organisasi / Instansi</label><input id="headerOrgName" placeholder="Contoh: KARANG TARUNA RW. 01 MINATU"></div>
+        <div><label>Alamat / Sekretariat</label><textarea id="headerOrgAddress" style="height:50px" placeholder="Contoh: Sekretariat: Jl. Minatu RT. 03 RW. 01 No. 134 Desa Lembang Kec. Lembang Kab. Bandung Barat"></textarea></div>
+
+        <label>👥 Saksi / Pihak Tambahan (Opsional)</label>
+        <div id="saksiList"></div>
+        <button type="button" class="small-btn" onclick="tambahSaksi()">➕ Tambah Saksi</button>
+        
+        <label>📸 Upload Foto Bukti (Multiple - Dokumentasi kejadian)</label>
+        <input type="file" id="fotoInput" accept="image/*" multiple>
+        <div id="file-status" class="file-status"></div>
+
+        <label>🗂️ Bukti Tambahan (Video / Audio / Dokumen / QR / GPS / Link / Lainnya)</label>
+        <div id="evidenceList"></div>
+        <button type="button" class="small-btn" onclick="tambahEvidence()">➕ Tambah Bukti</button>
+
+        <label>🧩 Output Profile — Bagian yang dimasukkan ke laporan AI</label>
+        <div id="outputProfileContainer" class="flex-row" style="flex-wrap:wrap;gap:8px 14px;margin-bottom:10px;"></div>
+
+        <div class="profile-row">
+            <button type="button" class="btn-blue" style="width:auto;" onclick="generateEnterprisePrompt()">⚙️ Generate Prompt</button>
+            <button type="button" class="btn-outline" style="width:auto;" onclick="copyEnterprisePrompt()">📋 Copy Prompt</button>
+        </div>
+        <button onclick="buatPromptEnterprise()" class="btn btn-blue">🚀 GENERATE PROMPT ENTERPRISE & BUKA AI</button>
+
+        <label style="margin-top:18px;">👁️ Prompt Preview</label>
+        <textarea id="enterprisePromptPreview" readonly style="min-height:280px;font-family:'Courier New',monospace;font-size:12px;line-height:1.6;"></textarea>
+        <div id="enterprisePromptStats" style="font-size:11px;color:#94a3b8;margin-top:10px;"></div>
+    </div>
+    
+    <div class="panel" id="panelEdit">
+        <h2>✏️ 2. EDIT LAPORAN RESMI & LAMPIRAN</h2>
+        <label>Hasil AI (ChatGPT/Gemini/Claude) - Edit bebas sesuai standar BAK</label>
+        <textarea id="ai_out" placeholder="Tempel hasil generate dari AI disini, lalu edit secara profesional..." oninput="scheduleLivePreview()"></textarea>
+
+        <label style="margin-top:18px;">👁️ Live Preview PDF</label>
+        <iframe id="livePreviewFrame" class="eims-preview-frame" sandbox="allow-same-origin"></iframe>
+        
+        <div id="fotoListEditor" style="margin-top: 20px;"></div>
+        
+        <div style="margin-top: 20px; background: #0f172a; border-radius: 16px; padding: 16px;">
+            <h3 style="margin-bottom: 12px;">🖊️ TANDA TANGAN DIGITAL (Klik & Drag di area putih)</h3>
+            <div class="flex-row">
+                <div style="flex:1">
+                    <label>TTD Pelapor (Pihak I - Kiri / Pelapor)</label>
+                    <div class="sig-container">
+                        <div class="sig-canvas-wrapper">
+                            <canvas id="canvasPelapor" class="ttd-canvas"></canvas>
+                        </div>
+                        <div class="sig-actions">
+                            <button class="small-btn" onclick="clearCanvas('canvasPelapor')">✖️ Hapus TTD</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="flex:1">
+                    <label>TTD Penerima (Pihak II - Kanan / Penerima)</label>
+                    <div class="sig-container">
+                        <div class="sig-canvas-wrapper">
+                            <canvas id="canvasPenerima" class="ttd-canvas"></canvas>
+                        </div>
+                        <div class="sig-actions">
+                            <button class="small-btn" onclick="clearCanvas('canvasPenerima')">✖️ Hapus TTD</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="small-btn" onclick="clearAllCanvases()" style="margin-top: 12px;">🗑️ Hapus Semua Tanda Tangan</button>
+            <p style="font-size:11px; margin-top:10px; color:#94a3b8;">✨ Support mouse & touch (Android/HP) | Gambar langsung untuk dokumen resmi BAK.</p>
+        </div>
+        
+        <button onclick="unduhPDF()" class="btn btn-green">📄 DOWNLOAD PDF (FORMAT RESMI A4 - BAK PERUSAHAAN)</button>
+        <button onclick="exportWord()" class="btn btn-purple">📝 EXPORT WORD (.doc)</button>
+    </div>
+
+    </div><!-- /eimsWorkspace -->
+</div>
+
+<script>
+    // ==================== GLOBAL CORE VARIABLES (PRESERVE ENGINE) ====================
+    let fotoDataList = []; 
+    let headerLogoLeftData = null;
+    let headerLogoRightData = null;
+    let saksiList = [];
+    let pdfDownloadInProgress = false;
+
+    const PROFIL_STORAGE_KEY = 'bak_org_profiles_v1';
+    const COUNTER_STORAGE_KEY = 'bak_doc_counter_v1';
+    const DRAFT_STORAGE_KEY = 'bak_draft_autosave_v1';
+    
+    let drawingPelapor = false;
+    let drawingPenerima = false;
+    let ctxPelapor, ctxPenerima;
+    let canvasPelapor, canvasPenerima;
+    
+    document.getElementById('tgl').value = new Date().toISOString().slice(0,10);
+    document.getElementById('jam').value = new Date().toTimeString().slice(0,5);
+    
+    // ========== TTD ENGINE ==========
+    function initTTDCanvas() {
+        canvasPelapor = document.getElementById('canvasPelapor');
+        canvasPenerima = document.getElementById('canvasPenerima');
+        
+        if(canvasPelapor) {
+            canvasPelapor.width = 400;
+            canvasPelapor.height = 150;
+            ctxPelapor = canvasPelapor.getContext('2d');
+            resetCanvasContext(ctxPelapor, canvasPelapor);
+            
+            canvasPelapor.addEventListener('mousedown', (e) => { drawingPelapor = true; draw(e, ctxPelapor, canvasPelapor); });
+            canvasPelapor.addEventListener('mousemove', (e) => { if(drawingPelapor) draw(e, ctxPelapor, canvasPelapor); });
+            canvasPelapor.addEventListener('mouseup', () => { drawingPelapor = false; ctxPelapor.beginPath(); });
+            canvasPelapor.addEventListener('mouseleave', () => { drawingPelapor = false; ctxPelapor.beginPath(); });
+            
+            canvasPelapor.addEventListener('touchstart', (e) => { drawingPelapor = true; draw(e, ctxPelapor, canvasPelapor); e.preventDefault(); });
+            canvasPelapor.addEventListener('touchmove', (e) => { if(drawingPelapor) draw(e, ctxPelapor, canvasPelapor); e.preventDefault(); });
+            canvasPelapor.addEventListener('touchend', () => { drawingPelapor = false; ctxPelapor.beginPath(); });
+        }
+        
+        if(canvasPenerima) {
+            canvasPenerima.width = 400;
+            canvasPenerima.height = 150;
+            ctxPenerima = canvasPenerima.getContext('2d');
+            resetCanvasContext(ctxPenerima, canvasPenerima);
+            
+            canvasPenerima.addEventListener('mousedown', (e) => { drawingPenerima = true; draw(e, ctxPenerima, canvasPenerima); });
+            canvasPenerima.addEventListener('mousemove', (e) => { if(drawingPenerima) draw(e, ctxPenerima, canvasPenerima); });
+            canvasPenerima.addEventListener('mouseup', () => { drawingPenerima = false; ctxPenerima.beginPath(); });
+            canvasPenerima.addEventListener('mouseleave', () => { drawingPenerima = false; ctxPenerima.beginPath(); });
+            
+            canvasPenerima.addEventListener('touchstart', (e) => { drawingPenerima = true; draw(e, ctxPenerima, canvasPenerima); e.preventDefault(); });
+            canvasPenerima.addEventListener('touchmove', (e) => { if(drawingPenerima) draw(e, ctxPenerima, canvasPenerima); e.preventDefault(); });
+            canvasPenerima.addEventListener('touchend', () => { drawingPenerima = false; ctxPenerima.beginPath(); });
+        }
+    }
+
+    function resetCanvasContext(ctx, canvas) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+    }
+    
+    function draw(e, ctx, canvas) {
+        const rect = canvas.getBoundingClientRect();
+        let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        const x = (clientX - rect.left) * (canvas.width / rect.width);
+        const y = (clientY - rect.top) * (canvas.height / rect.height);
+        
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
+    
+    function clearCanvas(canvasId) {
+        if(canvasId === 'canvasPelapor' && ctxPelapor) resetCanvasContext(ctxPelapor, canvasPelapor);
+        if(canvasId === 'canvasPenerima' && ctxPenerima) resetCanvasContext(ctxPenerima, canvasPenerima);
+    }
+    
+    function clearAllCanvases() {
+        clearCanvas('canvasPelapor');
+        clearCanvas('canvasPenerima');
+    }
+    
+    window.addEventListener('load', initTTDCanvas);
+    window.addEventListener('load', function() {
+        loadProfileList();
+        restoreDraftIfAny();
+        renderCustomTemplateOptions();
+        restoreDashboardVisibility();
+        setInterval(autosaveDraft, 15000);
+        renderQuickFill(document.getElementById('templateDokumen').value);
+        updateDashboardInfo();
+        renderAuditTrail();
+        renderArchive();
+        eimsGoDashboard();
+    });
+
+    // ==================== EIMS NAVIGATION ====================
+    function eimsHideAllTopLevel() {
+        ['panelDashboard','panelArchive','panelAudit','panelExpertAnalysis','panelSecurityOps'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+        document.getElementById('eimsWorkspace').style.display = 'none';
+    }
+    // EIMS Expert Analysis Engine V5.0 — navigation entry point
+    function eimsGoExpertAnalysis() {
+        eimsHideAllTopLevel();
+        document.getElementById('panelExpertAnalysis').style.display = 'block';
+        ExpertAnalysisEngine.init();
+    }
+    // Security Operation Mode Engine — navigation entry point
+    function eimsGoSecurityOps() {
+        eimsHideAllTopLevel();
+        document.getElementById('panelSecurityOps').style.display = 'block';
+        SecurityOperationModeEngine.init();
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+    function eimsGoDashboard() {
+        eimsHideAllTopLevel();
+        document.getElementById('panelDashboard').style.display = 'block';
+        updateDashboardInfo();
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+    function eimsGoWorkspace() {
+        eimsHideAllTopLevel();
+        document.getElementById('eimsWorkspace').style.display = 'block';
+        window.scrollTo({top:0, behavior:'smooth'});
+        scheduleLivePreview();
+    }
+    function eimsGoArchive() {
+        eimsHideAllTopLevel();
+        document.getElementById('panelArchive').style.display = 'block';
+        renderArchive();
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+    function eimsGoAudit() {
+        eimsHideAllTopLevel();
+        document.getElementById('panelAudit').style.display = 'block';
+        renderAuditTrail();
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+    function eimsNewDocument() {
+        if (confirm('Mulai dokumen baru? Draft yang belum disimpan sebagai arsip akan tetap ada di autosave, tapi form akan dikosongkan.')) {
+            clearDraft();
+            location.reload();
+        } else {
+            eimsGoWorkspace();
+        }
+    }
+    function updateDashboardInfo() {
+        try {
+            const draft = localStorage.getItem(DRAFT_STORAGE_KEY);
+            document.getElementById('dashDraftInfo').textContent = draft ? 'Draft tersimpan otomatis' : 'Belum ada draft';
+            const archive = getArchive();
+            document.getElementById('dashArchiveInfo').textContent = `${archive.length} dokumen`;
+        } catch(e) {}
+    }
+
+    // ==================== AUDIT TRAIL ENGINE ====================
+    const AUDIT_STORAGE_KEY = 'bak_audit_trail_v1';
+    function getAuditTrail() {
+        try { return JSON.parse(localStorage.getItem(AUDIT_STORAGE_KEY) || '[]'); } catch(e) { return []; }
+    }
+    function addAuditEntry(text) {
+        try {
+            const list = getAuditTrail();
+            const now = new Date();
+            list.push({ time: now.toTimeString().slice(0,5), date: now.toISOString().slice(0,10), text });
+            if (list.length > 200) list.shift();
+            localStorage.setItem(AUDIT_STORAGE_KEY, JSON.stringify(list));
+            renderAuditTrail();
+        } catch(e) {}
+    }
+    function renderAuditTrail() {
+        const el = document.getElementById('auditList');
+        if (!el) return;
+        const list = getAuditTrail().slice().reverse();
+        if (!list.length) { el.innerHTML = '<p style="font-size:12px;color:#64748b;">Belum ada aktivitas tercatat.</p>'; return; }
+        el.innerHTML = list.map(item => `
+            <div class="eims-audit-item">
+                <div class="eims-audit-time">${item.time}</div>
+                <div class="eims-audit-text">${escapeHtml(item.text)} <span style="color:#475569;">(${item.date})</span></div>
+            </div>
+        `).join('');
+    }
+
+    // ==================== ARCHIVE / SEARCH ENGINE ====================
+    const ARCHIVE_STORAGE_KEY = 'bak_archive_v1';
+    function getArchive() {
+        try { return JSON.parse(localStorage.getItem(ARCHIVE_STORAGE_KEY) || '[]'); } catch(e) { return []; }
+    }
+    function saveToArchive(entry) {
+        try {
+            const list = getArchive();
+            list.unshift(entry);
+            if (list.length > 500) list.pop();
+            localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(list));
+        } catch(e) {}
+    }
+    function renderArchive() {
+        const el = document.getElementById('archiveResults');
+        if (!el) return;
+        const query = (document.getElementById('archiveSearch').value || '').toLowerCase().trim();
+        let list = getArchive();
+        if (query) {
+            list = list.filter(d => [d.nomor, d.nama, d.lokasi, d.template, d.jenis, d.keyword, d.tahun, d.organisasi]
+                .filter(Boolean).join(' ').toLowerCase().includes(query));
+        }
+        if (!list.length) { el.innerHTML = '<p style="font-size:12px;color:#64748b;">Tidak ada dokumen arsip.</p>'; return; }
+        el.innerHTML = list.map(d => `
+            <div class="eims-archive-item">
+                <div class="title">${escapeHtml(d.jenis || 'Dokumen')} — ${escapeHtml(d.nomor || '-')}</div>
+                <div class="meta">${escapeHtml(d.nama || '-')} • ${escapeHtml(d.lokasi || '-')} • ${escapeHtml(d.template || '-')} • ${escapeHtml(d.tahun || '-')}</div>
+            </div>
+        `).join('');
+    }
+
+    // ==================== SMART VALIDATION ENGINE ====================
+    function clearFieldError(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('eims-field-error');
+        const msg = document.getElementById(id + '_err');
+        if (msg) msg.remove();
+    }
+    function showFieldError(id, message) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('eims-field-error');
+        let msg = document.getElementById(id + '_err');
+        if (!msg) {
+            msg = document.createElement('div');
+            msg.id = id + '_err';
+            msg.className = 'eims-error-msg';
+            el.parentNode.insertBefore(msg, el.nextSibling);
+        }
+        msg.textContent = message;
+    }
+    function validateRequiredFields() {
+        const required = [
+            { id: 'tgl', label: 'Tanggal Kejadian wajib diisi.' },
+            { id: 'jam', label: 'Waktu wajib diisi.' },
+            { id: 'lokasi', label: 'Lokasi Kejadian wajib diisi.' },
+            { id: 'nama_p1', label: 'Nama Pelapor wajib diisi.' },
+            { id: 'ket', label: 'Kronologi wajib diisi.' }
+        ];
+        ['tgl','jam','lokasi','nama_p1','ket'].forEach(clearFieldError);
+        let firstInvalid = null;
+        required.forEach(f => {
+            const el = document.getElementById(f.id);
+            if (el && !el.value.trim()) {
+                showFieldError(f.id, f.label);
+                if (!firstInvalid) firstInvalid = el;
+            }
+        });
+        if (firstInvalid) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus();
+            return false;
+        }
+        return true;
+    }
+
+    // ==================== AUTO FORMALIZER (RULE-BASED, NO AI) ====================
+    const FORMAL_DICT = [
+        [/\bgw\b/gi, 'saya'], [/\bgue\b/gi, 'saya'], [/\baku\b/gi, 'saya'],
+        [/\blu\b/gi, 'yang bersangkutan'], [/\blo\b/gi, 'yang bersangkutan'], [/\bkamu\b/gi, 'yang bersangkutan'],
+        [/\bdia marah\b/gi, 'yang bersangkutan menunjukkan sikap emosional'],
+        [/\bngga\b/gi, 'tidak'], [/\bgak\b/gi, 'tidak'], [/\bga\b/gi, 'tidak'], [/\bengga\b/gi, 'tidak'],
+        [/\bbanget\b/gi, 'sangat'], [/\bkayaknya\b/gi, 'diperkirakan'], [/\bkayak\b/gi, 'seperti'],
+        [/\bjatoh\b/gi, 'terjatuh'], [/\bjatuh\b/gi, 'terjatuh'],
+        [/\bnyariin\b/gi, 'mencari'], [/\bnyari\b/gi, 'mencari'],
+        [/\bngeliat\b/gi, 'melihat'], [/\bliat\b/gi, 'melihat'], [/\blihat\b/gi, 'melihat'],
+        [/\bbilang\b/gi, 'menyatakan'], [/\bnanya\b/gi, 'menanyakan'],
+        [/\btiba2\b/gi, 'tiba-tiba'], [/\btau\b/gi, 'mengetahui'], [/\btahu\b/gi, 'mengetahui'],
+        [/\bcapek\b/gi, 'lelah'], [/\bmakanya\b/gi, 'oleh karena itu'], [/\bkarena\b/gi, 'dikarenakan'],
+        [/\bkerja\b/gi, 'bekerja'], [/\bkejadian ini\b/gi, 'peristiwa tersebut'],
+        [/\bmau\b/gi, 'akan'], [/\bkelihatan\b/gi, 'tampak'], [/\bketauan\b/gi, 'diketahui']
+    ];
+    function autoFormalize(text) {
+        if (!text) return text;
+        let result = ' ' + text + ' ';
+        FORMAL_DICT.forEach(([pattern, replacement]) => {
+            result = result.replace(pattern, replacement);
+        });
+        return result.trim().replace(/\s+/g, ' ');
+    }
+
+    // ==================== QUICK FILL ENGINE ====================
+    const QUICK_FILL_FIELDS = {
+        'Data Center': ['Nama Site','Gedung','Area','Room','Rack','Vendor','Shift','Device','Nomor Rack'],
+        'FM200': ['Cylinder','Zone','Manual Release','Abort Switch','Smoke Detector','Heat Detector','Panel Fire Alarm'],
+        'Fire Alarm': ['Jenis Alarm','Lokasi Alarm','Device','Penyebab','Dampak']
+    };
+    function slugifyField(label) {
+        return 'qf_' + label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+    }
+    function renderQuickFill(templateName) {
+        const container = document.getElementById('quickFillContainer');
+        if (!container) return;
+        const fields = QUICK_FILL_FIELDS[templateName];
+        if (!fields) { container.innerHTML = ''; return; }
+        let html = '<label>⚡ Quick Fill — ' + escapeHtml(templateName) + '</label><div class="flex-row" style="flex-wrap:wrap;">';
+        fields.forEach(label => {
+            html += `<div style="min-width:140px;"><input id="${slugifyField(label)}" placeholder="${escapeHtml(label)}" oninput="scheduleLivePreview()"></div>`;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+    function collectQuickFillData(templateName) {
+        const fields = QUICK_FILL_FIELDS[templateName];
+        if (!fields) return '';
+        const lines = [];
+        fields.forEach(label => {
+            const el = document.getElementById(slugifyField(label));
+            if (el && el.value.trim()) lines.push(`${label}: ${el.value.trim()}`);
+        });
+        return lines.join('\n');
+    }
+
+    // ============================================================
+    // EIMS Prompt Intelligence Engine V4.0
+    // Prompt Compiler: Final Prompt = CORE ENGINE + TEMPLATE PROFILE + OUTPUT PROFILE + USER DATA
+    // Modular by design — adding a new incident type (UPS, Generator, HVAC, Network,
+    // Medical, Cyber Security, ...) only means adding one entry to TEMPLATE_PROFILES.
+    // Nothing else in the compiler needs to change.
+    // ============================================================
+
+    // EIMS Prompt Intelligence Engine V4.0 — CORE ENGINE
+    // Universal rules that apply to every template, every language, every AI provider.
+    // This is the one section that never changes per-template.
+    function buildCoreEngine() {
+        return [
+            'PERAN & IDENTITAS AI:',
+            'Anda bertindak sebagai Incident Intelligence Engine — sebuah sistem penyusun dokumen investigasi enterprise, berpikir dan menulis selayaknya seorang Incident Investigator profesional.',
+            '',
+            'ATURAN UNIVERSAL (WAJIB DIPATUHI):',
+            '1. Jangan mengarang fakta, angka, nama, atau kejadian yang tidak ada di Data Pengguna di bawah.',
+            '2. Perbaiki tata bahasa, ejaan, dan struktur kalimat dari input mentah menjadi bahasa formal/baku, tanpa mengubah makna atau fakta.',
+            '3. Susun kronologi secara logis dan berurutan berdasarkan waktu, bukan urutan penulisan asal user.',
+            '4. Pertahankan seluruh fakta inti (waktu, lokasi, pihak terlibat, nomor/identitas aset) persis seperti yang diberikan.',
+            '5. Gunakan gaya bahasa dokumen internal perusahaan: formal, presisi, tidak berlebihan, tidak dramatis.',
+            '6. Jangan menambahkan disclaimer, permintaan maaf, catatan AI, atau komentar di luar isi laporan.',
+            '7. Jangan gunakan markdown berlebihan (tanpa **bold** liar, tanpa emoji) — gunakan format dokumen resmi dengan penomoran/heading huruf romawi.',
+            '8. Output harus langsung berupa isi laporan yang siap tempel ke dokumen resmi, tanpa kalimat pembuka seperti "Berikut adalah laporannya:".'
+        ].join('\n');
+    }
+
+    // EIMS Prompt Intelligence Engine V4.0 — TEMPLATE PROFILE
+    // Each incident type owns its own knowledge base: terminology, SOP references,
+    // domain vocabulary, investigation workflow, writing style, and business rules.
+    // To add a new incident type, add ONE new key here — no other code changes needed.
+    const TEMPLATE_PROFILES = {
+        'Fire Alarm': {
+            knowledge: 'Sistem deteksi dan alarm kebakaran gedung/fasilitas komersial atau industri.',
+            terminologi: 'zone, device, panel fire alarm, smoke detector, heat detector, MCP (Manual Call Point), evakuasi.',
+            sop: 'SOP tanggap darurat kebakaran: verifikasi alarm, pengecekan lokasi, evakuasi bila diperlukan, reset panel, laporan ke pihak berwenang gedung.',
+            workflow: 'Deteksi/aktivasi → verifikasi lapangan → tindakan respon → evakuasi (jika perlu) → normalisasi sistem → pelaporan.',
+            style: 'Teknis-operasional, ringkas, berorientasi pada respons cepat dan keselamatan.',
+            businessRules: 'Wajib mencantumkan jenis alarm, lokasi/zone, device yang aktif, dan status akhir sistem (normal/perlu tindak lanjut).'
+        },
+        'FM200': {
+            knowledge: 'Sistem pemadam kebakaran gas bersih (clean agent) untuk ruang kritikal seperti Data Center/UPS Room.',
+            terminologi: 'cylinder, zone, manual release, abort switch, smoke detector, heat detector, panel fire alarm, discharge.',
+            sop: 'SOP aktivasi/insiden FM200: isolasi area, verifikasi discharge, pengecekan kondisi ruangan & perangkat, ventilasi sebelum re-entry, pelaporan teknis ke vendor.',
+            workflow: 'Deteksi/aktivasi sistem → verifikasi cylinder & zone → tindakan keselamatan → pengecekan dampak ke perangkat → pemulihan sistem → pelaporan teknis.',
+            style: 'Teknis-mendalam, presisi terhadap komponen sistem, berorientasi keselamatan ruang kritikal.',
+            businessRules: 'Wajib mencantumkan status cylinder, zone yang aktif, dan kondisi perangkat/infrastruktur setelah kejadian.'
+        },
+        'Kehilangan Barang': {
+            knowledge: 'Laporan kehilangan aset/barang milik perusahaan atau karyawan di lingkungan kerja.',
+            terminologi: 'barang bukti, ciri-ciri barang, lokasi terakhir terlihat, kronologi kehilangan.',
+            sop: 'SOP pelaporan kehilangan: pencatatan detail barang, pengecekan CCTV/lokasi, koordinasi dengan pihak keamanan, tindak lanjut administratif.',
+            workflow: 'Laporan awal → pendataan barang → penelusuran/pencarian → koordinasi keamanan → kesimpulan status barang.',
+            style: 'Administratif, faktual, deskriptif terhadap ciri barang.',
+            businessRules: 'Wajib mencantumkan deskripsi barang, lokasi terakhir, dan upaya pencarian yang sudah dilakukan.'
+        },
+        'Pencurian': {
+            knowledge: 'Dugaan tindak pencurian aset/barang di area kerja atau fasilitas perusahaan.',
+            terminologi: 'barang/aset hilang, pihak terlibat, CCTV, saksi, barang bukti, kronologi kejadian.',
+            sop: 'SOP investigasi dugaan pencurian: pengumpulan bukti (CCTV, saksi), koordinasi keamanan, eskalasi ke pihak berwenang bila perlu.',
+            workflow: 'Laporan kejadian → pengumpulan bukti awal → investigasi internal → koordinasi pihak berwenang (bila perlu) → kesimpulan & rekomendasi.',
+            style: 'Investigatif, netral, hati-hati terhadap dugaan (bukan vonis), berbasis fakta.',
+            businessRules: 'Gunakan istilah "diduga" untuk pelaku yang belum terkonfirmasi; jangan menuduh secara langsung tanpa bukti eksplisit dari data pengguna.'
+        },
+        'Kebakaran': {
+            knowledge: 'Kejadian kebakaran aktual di area kerja atau fasilitas.',
+            terminologi: 'titik api, sumber api, area terdampak, upaya pemadaman, APAR/hydrant.',
+            sop: 'SOP tanggap darurat kebakaran: pemadaman awal, evakuasi, koordinasi pemadam kebakaran, asesmen kerugian.',
+            workflow: 'Deteksi kebakaran → upaya pemadaman → evakuasi → koordinasi eksternal (jika perlu) → asesmen dampak & kerugian → pelaporan.',
+            style: 'Tegas, kronologis, berorientasi keselamatan dan kerugian material.',
+            businessRules: 'Wajib mencantumkan lokasi titik api, waktu terdeteksi, dan estimasi dampak/kerugian bila tersedia di data pengguna.'
+        },
+        'Kecelakaan Kerja': {
+            knowledge: 'Investigasi kecelakaan kerja (Kesehatan dan Keselamatan Kerja / K3).',
+            terminologi: 'korban, faktor penyebab, unsafe action, unsafe condition, P3K, root cause, akar masalah.',
+            sop: 'SOP investigasi kecelakaan kerja K3: pertolongan pertama, amankan lokasi, investigasi akar masalah, tindakan korektif & preventif K3.',
+            workflow: 'Kejadian → pertolongan pertama (P3K) → amankan lokasi kejadian → investigasi kronologi & faktor penyebab → identifikasi akar masalah → rekomendasi K3.',
+            style: 'Formal-investigatif ala laporan K3, berorientasi pada pencegahan berulang.',
+            businessRules: 'Wajib memisahkan antara fakta kejadian dan analisa penyebab; wajib menyertakan rekomendasi K3 yang dapat ditindaklanjuti.'
+        },
+        'Pelanggaran SOP': {
+            knowledge: 'Dugaan pelanggaran Standard Operating Procedure oleh pihak internal.',
+            terminologi: 'SOP terkait, pihak yang diduga melanggar, dampak operasional, pembinaan.',
+            sop: 'SOP penanganan pelanggaran internal: klarifikasi, dokumentasi bukti, koordinasi dengan atasan/HR, tindakan pembinaan.',
+            workflow: 'Temuan pelanggaran → identifikasi SOP terkait → klarifikasi pihak terkait → tindakan yang diambil → rekomendasi pembinaan.',
+            style: 'Netral, tidak menghakimi, berbasis SOP dan fakta terverifikasi.',
+            businessRules: 'Sebutkan SOP spesifik yang dilanggar bila tersedia di data pengguna; hindari opini pribadi, gunakan bahasa berbasis fakta.'
+        },
+        'Data Center': {
+            knowledge: 'Kejadian operasional/teknis di area Data Center (infrastruktur kritikal).',
+            terminologi: 'site, gedung, room, rack, device, vendor, shift, uptime, downtime.',
+            sop: 'SOP operasional Data Center: verifikasi alarm/monitoring, eskalasi ke vendor/OEM, mitigasi dampak layanan, pemulihan sistem.',
+            workflow: 'Deteksi/laporan kejadian → verifikasi infrastruktur terdampak → tindakan teknis → koordinasi vendor (bila perlu) → pemulihan → pelaporan operasional.',
+            style: 'Teknis-presisi, berorientasi pada availability dan dampak layanan.',
+            businessRules: 'Wajib mencantumkan site/room/rack/device terdampak dan status layanan (up/down/degraded) bila tersedia.'
+        },
+        'Serah Terima': {
+            knowledge: 'Dokumentasi resmi serah terima tugas, jabatan, aset, atau area kerja.',
+            terminologi: 'pihak menyerahkan, pihak menerima, objek serah terima, kondisi saat serah terima.',
+            sop: 'SOP administratif serah terima: verifikasi kondisi objek, pencatatan kelengkapan, pengesahan kedua pihak.',
+            workflow: 'Persiapan serah terima → pengecekan kondisi objek/tugas → penyerahan resmi → pengesahan kedua pihak.',
+            style: 'Administratif-formal, netral, berorientasi pada kelengkapan dan akuntabilitas.',
+            businessRules: 'Wajib mencantumkan identitas kedua pihak dan kondisi objek/tugas secara jelas.'
+        },
+        'Security': {
+            knowledge: 'Kejadian keamanan umum di lingkungan kerja/fasilitas (di luar kategori spesifik lain).',
+            terminologi: 'pos pengamanan, patroli, pihak terlibat, tindakan pengamanan, eskalasi.',
+            sop: 'SOP keamanan: verifikasi kejadian, tindakan pengamanan awal, koordinasi internal/eksternal, pelaporan ke manajemen.',
+            workflow: 'Laporan/temuan kejadian → verifikasi lapangan → tindakan pengamanan → koordinasi (bila perlu) → status penanganan.',
+            style: 'Tegas, ringkas, berorientasi keamanan dan ketertiban.',
+            businessRules: 'Wajib mencantumkan lokasi, waktu, pihak terlibat, dan status akhir penanganan.'
+        },
+        'Visitor': {
+            knowledge: 'Kejadian terkait tamu/pengunjung (visitor) di area perusahaan.',
+            terminologi: 'data visitor, tujuan kunjungan, penanggung jawab kunjungan, akses area.',
+            sop: 'SOP penanganan visitor: verifikasi identitas & tujuan, pendampingan akses area, pencatatan kunjungan.',
+            workflow: 'Kedatangan visitor → verifikasi & pencatatan → pendampingan/akses area → kejadian (jika ada) → catatan keamanan.',
+            style: 'Administratif-keamanan, ringkas, faktual.',
+            businessRules: 'Wajib mencantumkan identitas visitor, tujuan kunjungan, dan pihak yang bertanggung jawab mendampingi.'
+        }
+    };
+
+    // Generic fallback profile — used for Custom template or any template name
+    // not yet registered in TEMPLATE_PROFILES.
+    const DEFAULT_TEMPLATE_PROFILE = {
+        knowledge: 'Kejadian operasional umum di lingkungan kerja perusahaan.',
+        terminologi: 'kronologi, pihak terlibat, lokasi kejadian, tindak lanjut.',
+        sop: 'SOP pelaporan kejadian internal standar perusahaan.',
+        workflow: 'Kejadian → verifikasi → tindakan → kesimpulan.',
+        style: 'Formal, netral, berbasis fakta.',
+        businessRules: 'Wajib mempertahankan fakta inti (waktu, lokasi, pihak terlibat) sesuai data pengguna.'
+    };
+
+    function getTemplateProfile(templateName) {
+        return TEMPLATE_PROFILES[templateName] || DEFAULT_TEMPLATE_PROFILE;
+    }
+
+    // EIMS Prompt Intelligence Engine V4.0 — build the TEMPLATE PROFILE block of the prompt
+    function buildTemplateProfile(templateName) {
+        const p = getTemplateProfile(templateName);
+        const label = templateName || 'Umum / Custom';
+        return [
+            `PROFIL TEMPLATE: ${label}`,
+            `- Domain Knowledge: ${p.knowledge}`,
+            `- Terminologi Wajib Digunakan: ${p.terminologi}`,
+            `- Referensi SOP: ${p.sop}`,
+            `- Alur Investigasi (Workflow): ${p.workflow}`,
+            `- Gaya Penulisan: ${p.style}`,
+            `- Aturan Bisnis Khusus: ${p.businessRules}`
+        ].join('\n');
+    }
+
+    // EIMS Prompt Intelligence Engine V4.0 — OUTPUT PROFILE
+    // The set of report sections the user can toggle on/off. Rendered as chips in
+    // #outputProfileContainer and read back via collectOutputProfileSelection().
+    const OUTPUT_PROFILE_OPTIONS = [
+        { id: 'exec_summary', label: 'Executive Summary', instruction: 'Buat bagian EXECUTIVE SUMMARY — ringkasan 3-5 kalimat untuk manajemen, langsung ke inti kejadian dan dampaknya.' },
+        { id: 'kronologi', label: 'Kronologi', instruction: 'Buat bagian KRONOLOGI KEJADIAN secara berurutan waktu, detail, dan mudah ditelusuri.', defaultOn: true },
+        { id: 'analisa', label: 'Analisa', instruction: 'Buat bagian ANALISA KEJADIAN — telaah faktor-faktor yang berkontribusi terhadap kejadian ini.' },
+        { id: 'dampak', label: 'Dampak', instruction: 'Buat bagian DAMPAK — dampak operasional, finansial, keselamatan, dan/atau reputasi bila relevan.' },
+        { id: 'root_cause', label: 'Root Cause', instruction: 'Buat bagian ROOT CAUSE ANALYSIS — identifikasi akar masalah, bukan hanya gejala permukaan.' },
+        { id: 'corrective', label: 'Corrective Action', instruction: 'Buat bagian CORRECTIVE ACTION — tindakan perbaikan konkret yang sudah/harus dilakukan segera.' },
+        { id: 'preventive', label: 'Preventive Action', instruction: 'Buat bagian PREVENTIVE ACTION — langkah pencegahan agar kejadian serupa tidak terulang.' },
+        { id: 'kesimpulan', label: 'Kesimpulan', instruction: 'Buat bagian KESIMPULAN — pernyataan penutup formal, menyatakan laporan dibuat untuk keperluan investigasi dan pengesahan.', defaultOn: true },
+        { id: 'english', label: 'Bahasa Inggris', instruction: 'Setelah laporan Bahasa Indonesia selesai, sertakan juga versi terjemahan profesional dalam BAHASA INGGRIS (English translation) di bagian akhir, dengan heading "ENGLISH VERSION".' }
+    ];
+
+    function renderOutputProfileChips() {
+        const container = document.getElementById('outputProfileContainer');
+        if (!container) return;
+        container.innerHTML = OUTPUT_PROFILE_OPTIONS.map(opt => `
+            <label class="op-chip" id="op_chip_${opt.id}">
+                <input type="checkbox" id="op_${opt.id}" ${opt.defaultOn ? 'checked' : ''} onchange="toggleOutputChip('${opt.id}')">
+                ${escapeHtml(opt.label)}
+            </label>
+        `).join('');
+        OUTPUT_PROFILE_OPTIONS.forEach(opt => syncOutputChipStyle(opt.id));
+    }
+    function syncOutputChipStyle(id) {
+        const cb = document.getElementById('op_' + id);
+        const chip = document.getElementById('op_chip_' + id);
+        if (cb && chip) chip.classList.toggle('op-checked', cb.checked);
+    }
+    function toggleOutputChip(id) {
+        syncOutputChipStyle(id);
+    }
+    function collectOutputProfileSelection() {
+        const selected = OUTPUT_PROFILE_OPTIONS.filter(opt => {
+            const cb = document.getElementById('op_' + opt.id);
+            return cb ? cb.checked : !!opt.defaultOn;
+        });
+        return selected.length ? selected : OUTPUT_PROFILE_OPTIONS.filter(o => o.defaultOn);
+    }
+
+    // EIMS Prompt Intelligence Engine V4.0 — build the OUTPUT PROFILE block of the prompt
+    function buildOutputProfile(selectedOutputs) {
+        const lines = ['STRUKTUR OUTPUT YANG WAJIB DIHASILKAN (sesuai urutan berikut):'];
+        selectedOutputs.forEach((opt, idx) => {
+            lines.push(`${idx + 1}. ${opt.instruction}`);
+        });
+        return lines.join('\n');
+    }
+
+    // EIMS Prompt Intelligence Engine V4.0 — build the USER DATA block of the prompt
+    // Pulls every relevant field: core incident data, Quick Fill fields, evidence/attachments,
+    // and the (auto-formalized) chronology description.
+    function buildUserData(templateName) {
+        const tgl = document.getElementById('tgl').value || '-';
+        const jam = document.getElementById('jam').value || '-';
+        const lokasi = document.getElementById('lokasi').value || '-';
+        const pelapor = document.getElementById('nama_p1').value || '[NAMA PELAPOR]';
+        const jabatanPelapor = document.getElementById('jabatan_p1').value || '[JABATAN]';
+        const penerima = document.getElementById('nama_p2').value || '[NAMA PENERIMA]';
+        const jabatanPenerima = document.getElementById('jabatan_p2').value || '[JABATAN PENERIMA]';
+        const kronologiRaw = document.getElementById('ket').value || '[TULISKAN KRONOLOGI KEJADIAN]';
+        const kronologi = autoFormalize(kronologiRaw);
+        const quickFillData = collectQuickFillData(templateName);
+
+        const lampiranParts = [];
+        if (typeof fotoDataList !== 'undefined' && fotoDataList.length) {
+            lampiranParts.push(`${fotoDataList.length} foto bukti terlampir`);
+        }
+        if (typeof evidenceList !== 'undefined' && evidenceList.length) {
+            const items = evidenceList
+                .filter(ev => ev.nilai && ev.nilai.trim())
+                .map(ev => `${ev.tipe === 'Lainnya' ? (ev.tipeCustom || 'Lainnya') : ev.tipe}: ${ev.nilai.trim()}`);
+            if (items.length) lampiranParts.push(items.join('; '));
+        }
+
+        const lines = [
+            'DATA PENGGUNA (FAKTA — DILARANG DIUBAH ATAU DIKARANG):',
+            `- Tanggal: ${tgl}`,
+            `- Waktu: ${jam}`,
+            `- Lokasi: ${lokasi}`,
+            `- Pelapor (Pihak I): ${pelapor}, Jabatan: ${jabatanPelapor}`,
+            `- Penerima Laporan (Pihak II): ${penerima}, Jabatan: ${jabatanPenerima}`,
+            `- Kronologi (mentah dari pengguna, sudah dirapikan bahasanya): ${kronologi}`
+        ];
+        if (quickFillData) lines.push(`- Data Tambahan (${templateName}):\n${quickFillData}`);
+        if (lampiranParts.length) lines.push(`- Lampiran: ${lampiranParts.join(' | ')}`);
+
+        return lines.join('\n');
+    }
+
+    // EIMS Prompt Intelligence Engine V4.0 — Prompt Compiler
+    // Final Prompt = CORE ENGINE + TEMPLATE PROFILE + OUTPUT PROFILE + USER DATA
+    const PromptCompiler = {
+        buildCoreEngine,
+        buildTemplateProfile,
+        buildOutputProfile,
+        buildUserData,
+        buildFinalPrompt(templateName, judulDokumen) {
+            const core = this.buildCoreEngine();
+            const templateProfile = this.buildTemplateProfile(templateName);
+            const selectedOutputs = collectOutputProfileSelection();
+            const outputProfile = this.buildOutputProfile(selectedOutputs);
+            const userData = this.buildUserData(templateName);
+
+            return [
+                `TUGAS AI: SUSUN ${judulDokumen} FORMAT RESMI PERUSAHAAN (ENTERPRISE-GRADE).`,
+                '',
+                '=== 1. CORE ENGINE ===',
+                core,
+                '',
+                '=== 2. TEMPLATE PROFILE ===',
+                templateProfile,
+                '',
+                '=== 3. OUTPUT PROFILE ===',
+                outputProfile,
+                '',
+                '=== 4. DATA PENGGUNA ===',
+                userData,
+                '',
+                '=== INSTRUKSI FINAL ===',
+                `Susun seluruh bagian di atas menjadi satu dokumen ${judulDokumen} yang utuh, koheren, dan siap cetak, dengan heading huruf romawi sesuai urutan Output Profile. Gunakan bahasa Indonesia baku kecuali diminta versi Bahasa Inggris. Jangan tambahkan materi di luar Data Pengguna. Langsung tulis isi laporannya — tanpa kalimat pembuka atau penutup di luar struktur dokumen.`
+            ].join('\n');
+        }
+    };
+
+    // ============================================================
+    // EIMS Expert Analysis Engine V5.0
+    // ------------------------------------------------------------
+    // Pemisahan tanggung jawab (arsitektur baru):
+    //   IncidentReportEngine  = fakta, observasi, dokumentasi (Security/field staff — sudah ada di atas)
+    //   PromptCompilerEngine  = merangkai blok prompt (reusable, tidak tahu isi domain)
+    //   SpecialistProfileEngine = knowledge base per disiplin ilmu (Subject Matter Expert)
+    //   OutputProfileEngine   = daftar bagian output yang bisa dipilih user
+    //   PromptStatisticsEngine = statistik prompt (karakter/kata/token/versi)
+    //   ExpertAnalysisEngine  = orkestrator UI tab "AI Expert Analysis"
+    //
+    // Menambah Specialist baru (mis. Lift, Mechanical, BMS, Solar, Utility)
+    // HANYA perlu menambah satu entry di SpecialistProfileEngine.PROFILES —
+    // tidak ada bagian lain yang perlu diubah.
+    // ============================================================
+
+    // ---- SpecialistProfileEngine -------------------------------------------
+    const SpecialistProfileEngine = (function () {
+        const PROFILES = {
+            'FM200 Specialist': {
+                knowledge: 'Sistem pemadam kebakaran gas bersih (clean agent) untuk ruang kritikal seperti Data Center/UPS Room.',
+                terminology: 'cylinder, zone, manual release, abort switch, discharge, concentration level, re-entry.',
+                sop: 'Standar NFPA 2001 / prosedur internal FM200: isolasi area, verifikasi discharge, ventilasi sebelum re-entry, inspeksi cylinder pressure.',
+                workflow: 'Verifikasi alarm & zone → cek tekanan cylinder → cek discharge/no-discharge → asesmen dampak ke perangkat → pemulihan → laporan teknis vendor.',
+                riskFocus: 'Risiko terhadap kontinuitas layanan Data Center, potensi false discharge, dan integritas perangkat elektronik di ruang terdampak.',
+                vocabulary: 'Gunakan istilah teknis pemadaman gas bersih secara presisi; hindari istilah pemadaman kebakaran konvensional (air/foam).',
+                validationRules: 'Wajib menyebutkan status cylinder (discharged/standby), zone yang aktif, dan konsentrasi ruangan bila tersedia di data.',
+                bestPractice: 'Rujuk best practice NFPA 2001 dan rekomendasi OEM sistem FM200 terpasang.'
+            },
+            'Fire Alarm Specialist': {
+                knowledge: 'Sistem deteksi dan alarm kebakaran gedung/fasilitas (konvensional maupun addressable).',
+                terminology: 'zone, device address, panel fire alarm, smoke detector, heat detector, Manual Call Point (MCP), pre-alarm, general alarm.',
+                sop: 'SOP tanggap alarm kebakaran: verifikasi sumber, isolasi zone bermasalah, reset panel setelah investigasi tuntas.',
+                workflow: 'Alarm aktif → identifikasi zone/device → verifikasi lapangan → tindakan → reset & normalisasi → laporan teknis.',
+                riskFocus: 'Risiko false alarm berulang, potensi delay deteksi jika device bermasalah, dampak ke SOP evakuasi.',
+                vocabulary: 'Gunakan istilah zone/device/panel secara konsisten dengan dokumentasi sistem fire alarm terpasang.',
+                validationRules: 'Wajib mencantumkan zone/device yang aktif dan status akhir panel (normal/fault/isolated).',
+                bestPractice: 'Rujuk best practice NFPA 72 dan jadwal preventive maintenance fire alarm.'
+            },
+            'Electrical Specialist': {
+                knowledge: 'Sistem kelistrikan gedung/fasilitas: panel distribusi, MDP/SDP, proteksi (MCCB/MCB/ELCB), grounding.',
+                terminology: 'MDP, SDP, breaker, trip, overload, short circuit, grounding, phase, load balancing.',
+                sop: 'SOP kelistrikan: isolasi sumber sebelum penanganan, verifikasi penyebab trip, pengukuran sebelum re-energize.',
+                workflow: 'Gangguan terdeteksi → isolasi & pengamanan → identifikasi penyebab (overload/short/fault) → perbaikan → pengukuran → re-energize → laporan.',
+                riskFocus: 'Risiko keselamatan kerja kelistrikan (safety), potensi downtime beban kritikal, risiko kebakaran akibat kelistrikan.',
+                vocabulary: 'Gunakan istilah kelistrikan sesuai standar teknik elektro; sebutkan besaran (Ampere/Volt) hanya bila tersedia di data.',
+                validationRules: 'Wajib mencantumkan panel/beban terdampak dan status akhir (energized/isolated).',
+                bestPractice: 'Rujuk standar PUIL/IEC dan prosedur lockout-tagout (LOTO) sebelum tindakan perbaikan.'
+            },
+            'UPS Specialist': {
+                knowledge: 'Sistem Uninterruptible Power Supply untuk beban kritikal (Data Center/Building Facility).',
+                terminology: 'battery string, rectifier, inverter, bypass, load, backup time, alarm UPS.',
+                sop: 'SOP insiden UPS: verifikasi alarm, cek mode operasi (normal/bypass/battery), asesmen kapasitas battery.',
+                workflow: 'Alarm/gangguan UPS → verifikasi mode operasi → cek beban & battery → tindakan teknis → normalisasi → laporan vendor.',
+                riskFocus: 'Risiko interupsi daya ke beban kritikal, degradasi kapasitas battery, single point of failure bila redundansi terganggu.',
+                vocabulary: 'Gunakan istilah UPS/battery/inverter/bypass secara konsisten dan presisi.',
+                validationRules: 'Wajib mencantumkan mode operasi UPS saat kejadian dan status beban kritikal.',
+                bestPractice: 'Rujuk rekomendasi OEM UPS dan jadwal battery health check.'
+            },
+            'Generator Specialist': {
+                knowledge: 'Sistem genset/generator sebagai backup power beban kritikal.',
+                terminology: 'ATS (Automatic Transfer Switch), fuel level, starting battery, RPM, load test, alarm genset.',
+                sop: 'SOP insiden genset: verifikasi alarm/fault, cek ATS transfer, cek fuel & starting battery, uji beban bila diperlukan.',
+                workflow: 'Alarm/gangguan genset → verifikasi ATS → cek kondisi mesin (fuel/battery/RPM) → tindakan teknis → normalisasi → laporan.',
+                riskFocus: 'Risiko kegagalan backup power saat PLN padam, keterlambatan starting, kegagalan transfer ATS.',
+                vocabulary: 'Gunakan istilah genset/ATS/fuel/starting battery secara konsisten.',
+                validationRules: 'Wajib mencantumkan status ATS (auto/manual/fail) dan kondisi mesin saat kejadian.',
+                bestPractice: 'Rujuk rekomendasi OEM genset dan jadwal load test berkala.'
+            },
+            'HVAC Specialist': {
+                knowledge: 'Sistem tata udara (HVAC/Precision Air Conditioning) untuk kenyamanan atau ruang kritikal.',
+                terminology: 'AHU, PAC/CRAC, set point suhu/kelembaban, compressor, refrigerant, alarm suhu tinggi.',
+                sop: 'SOP insiden HVAC: verifikasi alarm suhu/kelembaban, cek unit terdampak, tindakan redundansi bila ruang kritikal.',
+                workflow: 'Alarm suhu/kelembaban → verifikasi unit terdampak → cek redundansi/backup unit → tindakan teknis → normalisasi → laporan.',
+                riskFocus: 'Risiko overheat perangkat pada ruang kritikal, dampak ke uptime layanan bila redundansi tidak memadai.',
+                vocabulary: 'Gunakan istilah AHU/PAC/CRAC/set point secara konsisten dengan dokumentasi sistem terpasang.',
+                validationRules: 'Wajib mencantumkan suhu/kelembaban saat kejadian dan status unit (running/fault/standby).',
+                bestPractice: 'Rujuk rekomendasi OEM HVAC dan ambang batas operasional ruang kritikal (mis. ASHRAE untuk Data Center).'
+            },
+            'Network Specialist': {
+                knowledge: 'Infrastruktur jaringan (LAN/WAN/data center network) dan perangkat jaringan.',
+                terminology: 'switch, router, uplink, downtime, packet loss, latency, redundant link, VLAN.',
+                sop: 'SOP insiden jaringan: verifikasi perangkat/link terdampak, cek redundansi, eskalasi ke vendor/NOC bila perlu.',
+                workflow: 'Gangguan terdeteksi (monitoring/laporan) → identifikasi perangkat/link terdampak → tindakan teknis → verifikasi pemulihan → laporan.',
+                riskFocus: 'Risiko downtime layanan, dampak ke SLA, single point of failure pada topologi jaringan.',
+                vocabulary: 'Gunakan istilah jaringan (switch/router/uplink/VLAN) secara presisi.',
+                validationRules: 'Wajib mencantumkan perangkat/link terdampak dan durasi downtime bila tersedia.',
+                bestPractice: 'Rujuk best practice desain redundansi jaringan dan prosedur eskalasi NOC.'
+            },
+            'Cyber Security Specialist': {
+                knowledge: 'Insiden keamanan siber: akses tidak sah, anomali sistem, potensi kebocoran data.',
+                terminology: 'indicator of compromise (IoC), akses tidak sah, anomali log, containment, insiden siber.',
+                sop: 'SOP insiden siber internal: containment awal, preservasi bukti/log, eskalasi ke tim keamanan informasi.',
+                workflow: 'Deteksi/laporan anomali → containment awal → preservasi bukti/log → investigasi → eskalasi → laporan.',
+                riskFocus: 'Risiko kebocoran data, gangguan operasional sistem, kepatuhan terhadap kebijakan keamanan informasi.',
+                vocabulary: 'Gunakan istilah keamanan siber baku; hindari menyimpulkan jenis serangan tanpa bukti eksplisit di data.',
+                validationRules: 'Gunakan istilah "terindikasi"/"diduga" untuk anomali yang belum terkonfirmasi; jangan mengarang detail teknis serangan.',
+                bestPractice: 'Rujuk kerangka kerja containment-eradication-recovery dan kebijakan keamanan informasi internal.'
+            },
+            'Medical Specialist': {
+                knowledge: 'Kejadian medis/kesehatan di lingkungan kerja (cedera, sakit mendadak, P3K).',
+                terminology: 'P3K, kondisi korban, rujukan medis, tindakan pertolongan pertama.',
+                sop: 'SOP penanganan medis internal: pertolongan pertama, rujukan ke fasilitas kesehatan bila perlu, dokumentasi kondisi korban.',
+                workflow: 'Kejadian medis → pertolongan pertama → asesmen kondisi → rujukan (bila perlu) → dokumentasi & tindak lanjut.',
+                riskFocus: 'Risiko terhadap keselamatan jiwa/kesehatan korban dan potensi keterulangan bila ada faktor lingkungan kerja.',
+                vocabulary: 'Gunakan bahasa netral non-diagnostik; laporan bukan pengganti rekam medis resmi.',
+                validationRules: 'Jangan membuat diagnosis medis; hanya dokumentasikan kondisi dan tindakan sesuai data yang diberikan.',
+                bestPractice: 'Rujuk prosedur P3K standar dan koordinasi dengan petugas kesehatan berwenang.'
+            },
+            'Data Center Specialist': {
+                knowledge: 'Operasional infrastruktur Data Center secara menyeluruh (site/room/rack/device) lintas sistem pendukung.',
+                terminology: 'site, room, rack, device, uptime, downtime, redundancy (N/N+1/2N), SLA.',
+                sop: 'SOP operasional Data Center: verifikasi monitoring, eskalasi ke spesialis sistem terkait, mitigasi dampak layanan.',
+                workflow: 'Deteksi/laporan → verifikasi infrastruktur terdampak → koordinasi spesialis sistem terkait → mitigasi → pemulihan → laporan operasional.',
+                riskFocus: 'Risiko terhadap availability layanan, redundansi infrastruktur, dan kepatuhan SLA.',
+                vocabulary: 'Gunakan istilah operasional Data Center (uptime/downtime/redundancy) secara konsisten.',
+                validationRules: 'Wajib mencantumkan site/room/rack/device terdampak dan status layanan (up/down/degraded).',
+                bestPractice: 'Rujuk standar Uptime Institute Tier Classification bila relevan dengan tingkat redundansi fasilitas.'
+            },
+            'Building Facility Specialist': {
+                knowledge: 'Fasilitas gedung umum di luar sistem kritikal spesifik (lift, plumbing, struktur, sipil, umum).',
+                terminology: 'fasilitas gedung, area terdampak, maintenance, vendor gedung.',
+                sop: 'SOP maintenance fasilitas gedung: verifikasi kerusakan, tindakan perbaikan, koordinasi vendor bila diperlukan.',
+                workflow: 'Temuan/laporan kerusakan fasilitas → verifikasi lapangan → tindakan perbaikan → koordinasi vendor (bila perlu) → laporan.',
+                riskFocus: 'Risiko kenyamanan dan keselamatan pengguna gedung, potensi gangguan operasional area terdampak.',
+                vocabulary: 'Gunakan istilah facility management umum, netral dan deskriptif.',
+                validationRules: 'Wajib mencantumkan area/fasilitas terdampak dan status penanganan.',
+                bestPractice: 'Rujuk praktik facility management umum dan SOP maintenance preventif gedung.'
+            },
+            'Emergency Response Specialist': {
+                knowledge: 'Koordinasi tanggap darurat lintas disiplin (kebakaran aktual, evakuasi, kecelakaan kerja skala luas).',
+                terminology: 'emergency response plan, titik kumpul, evakuasi, incident commander, mitigasi dampak.',
+                sop: 'SOP tanggap darurat: aktivasi emergency response plan, evakuasi, koordinasi lintas tim, asesmen dampak pasca-kejadian.',
+                workflow: 'Kejadian darurat → aktivasi respons darurat → evakuasi/pengamanan → koordinasi lintas tim → asesmen dampak → laporan.',
+                riskFocus: 'Risiko keselamatan jiwa, kerugian material, dan kesiapan rencana tanggap darurat.',
+                vocabulary: 'Gunakan istilah manajemen tanggap darurat secara formal dan terkoordinasi.',
+                validationRules: 'Wajib mencantumkan tim/pihak yang terlibat dalam respons dan status akhir situasi (terkendali/berlanjut).',
+                bestPractice: 'Rujuk kerangka kerja emergency response plan dan hasil evaluasi pasca-kejadian (after-action review).'
+            },
+            'Security Investigation Specialist': {
+                knowledge: 'Investigasi kejadian dalam domain keamanan itu sendiri (kehilangan, pencurian, pelanggaran SOP, kejadian keamanan umum) — bukan analisa sistem teknis.',
+                terminology: 'barang bukti, kronologi, saksi, CCTV, pihak terlibat, tindak lanjut keamanan.',
+                sop: 'SOP investigasi keamanan internal: pengumpulan bukti, klarifikasi pihak terkait, eskalasi ke pihak berwenang bila perlu.',
+                workflow: 'Laporan kejadian → pengumpulan bukti → klarifikasi pihak terkait → kesimpulan → rekomendasi tindak lanjut keamanan.',
+                riskFocus: 'Risiko keamanan aset, ketertiban area, dan reputasi bila kejadian tidak ditindaklanjuti.',
+                vocabulary: 'Gunakan istilah "diduga" untuk pihak yang belum terkonfirmasi; netral, tidak menuduh tanpa bukti eksplisit di data.',
+                validationRules: 'Jangan menganalisa sistem teknis (FM200/Fire Alarm/HVAC/UPS/Generator/Chiller/Electrical/Network/Cyber) — itu di luar domain specialist ini.',
+                bestPractice: 'Rujuk praktik investigasi keamanan internal yang netral dan berbasis bukti.'
+            }
+        };
+
+        // Template Incident Report -> Specialist default (auto-select, tetap bisa diubah manual)
+        const TEMPLATE_TO_SPECIALIST = {
+            'Fire Alarm': 'Fire Alarm Specialist',
+            'FM200': 'FM200 Specialist',
+            'Data Center': 'Data Center Specialist',
+            'Kebakaran': 'Emergency Response Specialist',
+            'Kecelakaan Kerja': 'Emergency Response Specialist',
+            'Kehilangan Barang': 'Security Investigation Specialist',
+            'Pencurian': 'Security Investigation Specialist',
+            'Pelanggaran SOP': 'Security Investigation Specialist',
+            'Security': 'Security Investigation Specialist',
+            'Visitor': 'Security Investigation Specialist',
+            'Serah Terima': 'Building Facility Specialist'
+        };
+
+        const DEFAULT_SPECIALIST = 'Building Facility Specialist';
+
+        function listSpecialistNames() {
+            return Object.keys(PROFILES);
+        }
+        function getProfile(name) {
+            return PROFILES[name] || PROFILES[DEFAULT_SPECIALIST];
+        }
+        function getDefaultSpecialistForTemplate(templateName) {
+            return TEMPLATE_TO_SPECIALIST[templateName] || DEFAULT_SPECIALIST;
+        }
+
+        return { listSpecialistNames, getProfile, getDefaultSpecialistForTemplate, DEFAULT_SPECIALIST };
+    })();
+
+    // ---- OutputProfileEngine (Expert Analysis tab) ---------------------------
+    const OutputProfileEngine = (function () {
+        const OPTIONS = [
+            { id: 'exp_checklist', label: 'Checklist', instruction: 'Buat bagian CHECKLIST VERIFIKASI TEKNIS sesuai domain specialist ini, berdasarkan fakta yang tersedia.' },
+            { id: 'exp_exec_summary', label: 'Executive Summary', instruction: 'Buat bagian EXECUTIVE SUMMARY — ringkasan padat untuk manajemen.', defaultOn: true },
+            { id: 'exp_report', label: 'Professional Report', instruction: 'Buat bagian LAPORAN ANALISA TEKNIS lengkap dan profesional sesuai gaya penulisan specialist ini.', defaultOn: true },
+            { id: 'exp_timeline', label: 'Timeline', instruction: 'Buat bagian TIMELINE — susunan waktu kejadian dan tindakan secara kronologis.' },
+            { id: 'exp_root_cause', label: 'Root Cause', instruction: 'Buat bagian ROOT CAUSE ANALYSIS berbasis knowledge domain specialist ini.', defaultOn: true },
+            { id: 'exp_risk', label: 'Risk Analysis', instruction: 'Buat bagian RISK ANALYSIS sesuai Risk Focus domain specialist ini.' },
+            { id: 'exp_corrective', label: 'Corrective Action', instruction: 'Buat bagian CORRECTIVE ACTION — tindakan perbaikan teknis konkret.', defaultOn: true },
+            { id: 'exp_preventive', label: 'Preventive Action', instruction: 'Buat bagian PREVENTIVE ACTION — langkah pencegahan berulang sesuai best practice domain.' },
+            { id: 'exp_lessons', label: 'Lessons Learned', instruction: 'Buat bagian LESSONS LEARNED untuk pembelajaran organisasi.' },
+            { id: 'exp_english', label: 'English Version', instruction: 'Sertakan versi terjemahan profesional dalam BAHASA INGGRIS di bagian akhir dengan heading "ENGLISH VERSION".' },
+            { id: 'exp_brief', label: 'Executive Brief', instruction: 'Buat bagian EXECUTIVE BRIEF — versi 1 paragraf super ringkas untuk notifikasi cepat ke manajemen.' }
+        ];
+
+        function render(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = OPTIONS.map(opt => `
+                <label class="op-chip" id="expchip_${opt.id}">
+                    <input type="checkbox" id="exp_op_${opt.id}" ${opt.defaultOn ? 'checked' : ''} onchange="OutputProfileEngine.syncChip('${opt.id}')">
+                    ${escapeHtml(opt.label)}
+                </label>
+            `).join('');
+            OPTIONS.forEach(opt => syncChip(opt.id));
+        }
+        function syncChip(id) {
+            const cb = document.getElementById('exp_op_' + id);
+            const chip = document.getElementById('expchip_' + id);
+            if (cb && chip) chip.classList.toggle('op-checked', cb.checked);
+        }
+        function collectSelection() {
+            const selected = OPTIONS.filter(opt => {
+                const cb = document.getElementById('exp_op_' + opt.id);
+                return cb ? cb.checked : !!opt.defaultOn;
+            });
+            return selected.length ? selected : OPTIONS.filter(o => o.defaultOn);
+        }
+
+        return { render, syncChip, collectSelection };
+    })();
+
+    // ---- PromptStatisticsEngine -----------------------------------------------
+    const PromptStatisticsEngine = (function () {
+        const VERSION = 'EIMS Expert Analysis Engine V5.0';
+        function computeStats(text) {
+            const chars = text.length;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const tokensEst = Math.max(1, Math.round(chars / 4));
+            return { chars, words, tokensEst, version: VERSION };
+        }
+        function renderInto(elId, text) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            const s = computeStats(text);
+            el.innerHTML = `📊 ${s.chars.toLocaleString('id-ID')} karakter &nbsp;|&nbsp; ${s.words.toLocaleString('id-ID')} kata &nbsp;|&nbsp; ~${s.tokensEst.toLocaleString('id-ID')} token (estimasi) &nbsp;|&nbsp; ${s.version}`;
+        }
+        return { computeStats, renderInto, VERSION };
+    })();
+
+    // ---- PromptCompilerEngine (Expert Analysis) --------------------------------
+    // Menyusun prompt = CORE ENGINE (identitas Specialist) + SPECIALIST PROFILE +
+    // OUTPUT PROFILE + FAKTA INCIDENT REPORT (read-only, dari IncidentReportEngine).
+    const ExpertPromptCompilerEngine = (function () {
+        function buildCoreEngine(specialistName) {
+            return [
+                'PERAN & IDENTITAS AI:',
+                `Anda bertindak sebagai ${specialistName} — seorang Subject Matter Expert di bidang ini, BUKAN sebagai petugas Security.`,
+                'Security yang membuat Incident Report di bawah HANYA berperan sebagai pihak pertama yang menemukan, mengamankan, dan mendokumentasikan fakta. Security TIDAK melakukan analisa teknis.',
+                'Tugas Anda sebagai Specialist adalah menganalisa fakta tersebut dari sudut pandang keahlian teknis Anda.',
+                '',
+                'ATURAN UNIVERSAL (WAJIB DIPATUHI):',
+                '1. Jangan mengarang fakta, angka, nama, atau kejadian yang tidak ada di Fakta Incident Report di bawah.',
+                '2. Gunakan Knowledge Base, Terminologi, dan Business Rules Specialist ini secara konsisten.',
+                '3. Pisahkan secara jelas antara FAKTA (dari Incident Report) dan ANALISA (dari Anda sebagai Specialist).',
+                '4. Gunakan gaya bahasa dokumen teknis-enterprise: formal, presisi, tidak berlebihan, tidak dramatis.',
+                '5. Jangan menambahkan disclaimer, permintaan maaf, atau catatan AI di luar isi laporan.',
+                '6. Jangan gunakan markdown berlebihan (tanpa **bold** liar, tanpa emoji) — gunakan heading huruf romawi format dokumen resmi.',
+                '7. Output harus langsung berupa isi laporan analisa, siap tempel ke dokumen resmi.'
+            ].join('\n');
+        }
+
+        function buildSpecialistProfile(specialistName) {
+            const p = SpecialistProfileEngine.getProfile(specialistName);
+            return [
+                `PROFIL SPECIALIST: ${specialistName}`,
+                `- Knowledge Base: ${p.knowledge}`,
+                `- Terminologi Wajib Digunakan: ${p.terminology}`,
+                `- Referensi SOP: ${p.sop}`,
+                `- Alur Analisa (Workflow): ${p.workflow}`,
+                `- Fokus Risk Analysis: ${p.riskFocus}`,
+                `- Professional Vocabulary: ${p.vocabulary}`,
+                `- Validation Rules: ${p.validationRules}`,
+                `- Best Practice: ${p.bestPractice}`
+            ].join('\n');
+        }
+
+        function buildOutputProfile(selectedOutputs) {
+            const lines = ['STRUKTUR OUTPUT YANG WAJIB DIHASILKAN (sesuai urutan berikut):'];
+            selectedOutputs.forEach((opt, idx) => lines.push(`${idx + 1}. ${opt.instruction}`));
+            return lines.join('\n');
+        }
+
+        // Fakta diambil langsung dari field Incident Report yang sudah diisi Security —
+        // tab ini TIDAK meminta input ulang, hanya membaca (read-only).
+        function buildIncidentFactsBlock() {
+            const tgl = document.getElementById('tgl').value || '-';
+            const jam = document.getElementById('jam').value || '-';
+            const lokasi = document.getElementById('lokasi').value || '-';
+            const templateName = document.getElementById('templateDokumen').value || 'Umum';
+            const pelapor = document.getElementById('nama_p1').value || '[NAMA PELAPOR]';
+            const jabatanPelapor = document.getElementById('jabatan_p1').value || '[JABATAN]';
+            const kronologiRaw = document.getElementById('ket').value || '[BELUM ADA KRONOLOGI DI INCIDENT REPORT]';
+            const kronologi = typeof autoFormalize === 'function' ? autoFormalize(kronologiRaw) : kronologiRaw;
+            const quickFillData = typeof collectQuickFillData === 'function' ? collectQuickFillData(templateName) : '';
+            const aiOut = document.getElementById('ai_out') ? document.getElementById('ai_out').value.trim() : '';
+
+            const lines = [
+                'FAKTA INCIDENT REPORT (DIDOKUMENTASIKAN OLEH SECURITY/PETUGAS LAPANGAN — FAKTA SAJA, BUKAN ANALISA):',
+                `- Template Kejadian: ${templateName}`,
+                `- Tanggal: ${tgl}`,
+                `- Waktu: ${jam}`,
+                `- Lokasi: ${lokasi}`,
+                `- Pelapor (Pihak Pertama/Security): ${pelapor}, Jabatan: ${jabatanPelapor}`,
+                `- Kronologi (fakta observasi lapangan): ${kronologi}`
+            ];
+            if (quickFillData) lines.push(`- Data Tambahan Lapangan:\n${quickFillData}`);
+            if (aiOut) lines.push(`- Draft Laporan Resmi (jika sudah ada, sebagai referensi fakta tambahan): ${aiOut.slice(0, 1500)}`);
+            return lines.join('\n');
+        }
+
+        function buildFinalPrompt(specialistName, selectedOutputs) {
+            const core = buildCoreEngine(specialistName);
+            const profile = buildSpecialistProfile(specialistName);
+            const output = buildOutputProfile(selectedOutputs);
+            const facts = buildIncidentFactsBlock();
+
+            return [
+                `TUGAS AI: LAKUKAN ANALISA TEKNIS SEBAGAI ${specialistName.toUpperCase()} ATAS INCIDENT REPORT BERIKUT.`,
+                '',
+                '=== 1. CORE ENGINE ===',
+                core,
+                '',
+                '=== 2. SPECIALIST PROFILE ===',
+                profile,
+                '',
+                '=== 3. OUTPUT PROFILE ===',
+                output,
+                '',
+                '=== 4. FAKTA INCIDENT REPORT ===',
+                facts,
+                '',
+                '=== INSTRUKSI FINAL ===',
+                `Susun seluruh bagian di atas menjadi satu LAPORAN ANALISA EXPERT yang utuh dan koheren, dengan heading huruf romawi sesuai urutan Output Profile. Jawab sebagai ${specialistName}, bukan sebagai Security. Jangan tambahkan materi di luar Fakta Incident Report. Langsung tulis isi analisanya — tanpa kalimat pembuka atau penutup di luar struktur dokumen.`
+            ].join('\n');
+        }
+
+        return { buildCoreEngine, buildSpecialistProfile, buildOutputProfile, buildIncidentFactsBlock, buildFinalPrompt };
+    })();
+
+    // ---- ExpertAnalysisEngine (UI Orchestrator untuk tab AI Expert Analysis) --
+    const ExpertAnalysisEngine = (function () {
+        let manualOverride = false;
+
+        function populateSpecialistSelect() {
+            const select = document.getElementById('expertSpecialistSelect');
+            if (!select) return;
+            select.innerHTML = SpecialistProfileEngine.listSpecialistNames()
+                .map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
+                .join('');
+        }
+
+        function syncDescription() {
+            const select = document.getElementById('expertSpecialistSelect');
+            const desc = document.getElementById('expertSpecialistDesc');
+            if (!select || !desc) return;
+            const p = SpecialistProfileEngine.getProfile(select.value);
+            desc.textContent = p.knowledge;
+        }
+
+        function init() {
+            populateSpecialistSelect();
+            OutputProfileEngine.render('expertOutputProfileContainer');
+
+            const select = document.getElementById('expertSpecialistSelect');
+            if (select && !manualOverride) {
+                const templateName = document.getElementById('templateDokumen') ? document.getElementById('templateDokumen').value : '';
+                select.value = SpecialistProfileEngine.getDefaultSpecialistForTemplate(templateName);
+            }
+            syncDescription();
+            generatePrompt();
+        }
+
+        function onSpecialistChange() {
+            manualOverride = true;
+            syncDescription();
+            generatePrompt();
+        }
+
+        function generatePrompt() {
+            const select = document.getElementById('expertSpecialistSelect');
+            const specialistName = select ? select.value : SpecialistProfileEngine.DEFAULT_SPECIALIST;
+            const selectedOutputs = OutputProfileEngine.collectSelection();
+            const prompt = ExpertPromptCompilerEngine.buildFinalPrompt(specialistName, selectedOutputs);
+
+            const preview = document.getElementById('expertPromptPreview');
+            if (preview) preview.value = prompt;
+            PromptStatisticsEngine.renderInto('expertPromptStats', prompt);
+            return prompt;
+        }
+
+        function copyPrompt() {
+            const prompt = generatePrompt();
+            navigator.clipboard.writeText(prompt);
+            if (typeof addAuditEntry === 'function') addAuditEntry('AI Expert Analysis — Prompt disalin');
+            alert('✅ Prompt Expert Analysis disalin ke clipboard.');
+        }
+
+        function openWorkspace() {
+            const prompt = generatePrompt();
+            navigator.clipboard.writeText(prompt);
+
+            const aiSelect = document.getElementById('aiWorkspace');
+            let aiUrl = aiSelect ? aiSelect.value : 'https://claude.ai/new';
+            if (aiUrl === 'CUSTOM') {
+                aiUrl = document.getElementById('customAIUrl').value.trim();
+                if (!aiUrl) {
+                    alert('✅ Prompt disalin! Isi dulu URL AI Custom di Panel 0 untuk membuka otomatis, atau paste manual ke AI favorit.');
+                    if (typeof addAuditEntry === 'function') addAuditEntry('AI Expert Analysis — AI Custom URL belum diisi');
+                    return;
+                }
+            }
+            if (typeof addAuditEntry === 'function') addAuditEntry(`AI Expert Analysis — Membuka AI Workspace (${aiUrl})`);
+            window.open(aiUrl, '_blank');
+        }
+
+        return { init, onSpecialistChange, generatePrompt, copyPrompt, openWorkspace };
+    })();
+
+    // ============================================================
+    // Security Operation Mode Engine
+    // ------------------------------------------------------------
+    // Menyusun ulang engine yang SUDAH ADA — bukan engine baru terpisah:
+    //   Mode 1 (Security Report)      -> PromptCompiler        (Security Report Engine)
+    //   Mode 2 (Security + SME)       -> PromptCompiler + ExpertPromptCompilerEngine
+    //                                     (Security Report Engine + SME Specialist Engine)
+    // Output Profile Mode 1 dikunci hanya ke fakta (kronologi, ringkasan, kesimpulan) —
+    // Root Cause/Analisa/Corrective/Preventive TIDAK PERNAH masuk ke Bagian A,
+    // sesuai batasan tugas Security biasa.
+    // ============================================================
+    const SecurityOperationModeEngine = (function () {
+        const SECURITY_REPORT_LOCKED_OUTPUTS = OUTPUT_PROFILE_OPTIONS.filter(opt =>
+            ['exec_summary', 'kronologi', 'kesimpulan'].includes(opt.id)
+        );
+
+        function getMode() {
+            const el = document.querySelector('input[name="secOpsMode"]:checked');
+            return el ? el.value : 'mode1';
+        }
+
+        function getTemplateName() {
+            const t = document.getElementById('templateDokumen');
+            return t ? t.value : '';
+        }
+
+        function populateSpecialistSelect() {
+            const select = document.getElementById('secOpsSpecialistSelect');
+            if (!select) return;
+            select.innerHTML = SpecialistProfileEngine.listSpecialistNames()
+                .map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
+                .join('');
+            select.value = SpecialistProfileEngine.getDefaultSpecialistForTemplate(getTemplateName());
+        }
+
+        function syncModeUI() {
+            const smeBlock = document.getElementById('secOpsSmeBlock');
+            if (smeBlock) smeBlock.style.display = (getMode() === 'mode2') ? 'block' : 'none';
+        }
+
+        // Bagian A — Security Report Engine (fakta saja; TIDAK BOLEH ada analisa teknis)
+        function buildSecurityReportSection() {
+            const templateName = getTemplateName();
+            const judulEl = document.getElementById('judulDokumen');
+            const judul = (judulEl && judulEl.value.trim()) || 'BERITA ACARA KEJADIAN (BAK)';
+            const core = PromptCompiler.buildCoreEngine();
+            const templateProfile = PromptCompiler.buildTemplateProfile(templateName);
+            const outputProfile = PromptCompiler.buildOutputProfile(SECURITY_REPORT_LOCKED_OUTPUTS);
+            const userData = PromptCompiler.buildUserData(templateName);
+
+            return [
+                `TUGAS AI (BAGIAN A): SUSUN ${judul} FORMAT RESMI — HANYA FAKTA, TANPA ANALISA TEKNIS.`,
+                '',
+                'BATASAN PERAN (WAJIB): Anda hanya bertindak sebagai penyusun laporan fakta dari sudut pandang Security — menemukan kejadian, mengamankan lokasi, mendokumentasikan fakta, bukti, dan keterangan saksi, serta menyusun kronologi. DILARANG membuat Root Cause Analysis, Analisis Teknis, Risk Assessment, Corrective Action, Preventive Action, atau bertindak sebagai Engineer/Subject Matter Expert pada bagian ini.',
+                '',
+                '=== CORE ENGINE ===', core, '',
+                '=== TEMPLATE PROFILE ===', templateProfile, '',
+                '=== OUTPUT PROFILE (TERKUNCI — FAKTA SAJA) ===', outputProfile, '',
+                '=== DATA PENGGUNA ===', userData
+            ].join('\n');
+        }
+
+        // Bagian B — SME Specialist Engine (reuse ExpertPromptCompilerEngine, Mode 2 saja)
+        function buildSmeSection(specialistName) {
+            const selectedOutputs = OutputProfileEngine.collectSelection();
+            return ExpertPromptCompilerEngine.buildFinalPrompt(specialistName, selectedOutputs);
+        }
+
+        function generatePrompt() {
+            const mode = getMode();
+            let prompt;
+            if (mode === 'mode1') {
+                prompt = ['MODE: SECURITY REPORT (Mode 1)', '', buildSecurityReportSection()].join('\n');
+            } else {
+                const select = document.getElementById('secOpsSpecialistSelect');
+                const specialistName = select ? select.value : SpecialistProfileEngine.DEFAULT_SPECIALIST;
+                prompt = [
+                    'MODE: SECURITY + SME (Mode 2)',
+                    `AI akan menghasilkan DUA bagian berurutan: A. SECURITY INCIDENT REPORT (fakta saja), kemudian B. SME ANALYSIS (analisa teknis sebagai ${specialistName}).`,
+                    '',
+                    '========================================',
+                    'BAGIAN A — SECURITY INCIDENT REPORT',
+                    '========================================',
+                    buildSecurityReportSection(),
+                    '',
+                    '========================================',
+                    'BAGIAN B — SME ANALYSIS',
+                    '========================================',
+                    buildSmeSection(specialistName)
+                ].join('\n');
+            }
+
+            const preview = document.getElementById('secOpsPromptPreview');
+            if (preview) preview.value = prompt;
+            if (typeof PromptStatisticsEngine !== 'undefined') PromptStatisticsEngine.renderInto('secOpsPromptStats', prompt);
+            return prompt;
+        }
+
+        function copyPrompt() {
+            const prompt = generatePrompt();
+            copyTextToClipboard(prompt).then(ok => {
+                if (typeof addAuditEntry === 'function') addAuditEntry('Security Operation Mode — Prompt disalin (' + getMode() + ')');
+                alert(ok ? '✅ Prompt Security Operation Mode disalin ke clipboard.' : '⚠️ Clipboard gagal — salin manual dari kotak Prompt Preview.');
+            });
+        }
+
+        function generateAndOpenWorkspace() {
+            const prompt = generatePrompt();
+            if (!prompt || !prompt.trim()) {
+                alert('⚠️ Prompt gagal dibuat — AI Workspace tidak dibuka.');
+                return;
+            }
+            copyTextToClipboard(prompt).then(ok => {
+                const aiSelect = document.getElementById('aiWorkspace');
+                let aiUrl = aiSelect ? aiSelect.value : 'https://claude.ai/new';
+                let aiName = aiSelect ? aiSelect.options[aiSelect.selectedIndex].text : 'AI';
+                if (aiUrl === 'CUSTOM') {
+                    aiUrl = document.getElementById('customAIUrl').value.trim();
+                    aiName = document.getElementById('customAINama').value.trim() || 'AI Custom';
+                    if (!aiUrl) {
+                        alert('✅ Prompt sudah tampil di Prompt Preview. Isi dulu URL AI Custom di Panel 0 untuk membuka otomatis, atau salin manual.');
+                        if (typeof addAuditEntry === 'function') addAuditEntry('Security Operation Mode — AI Custom URL belum diisi');
+                        return;
+                    }
+                }
+                if (typeof addAuditEntry === 'function') addAuditEntry(`Security Operation Mode (${getMode()}) — Membuka AI Workspace (${aiUrl})`);
+                alert(ok
+                    ? `✅ Prompt Security Operation Mode disalin! Membuka ${aiName} — tinggal paste (Ctrl+V).`
+                    : `⚠️ Clipboard gagal — Prompt tetap tampil di Prompt Preview, salin manual lalu paste ke ${aiName}.`);
+                window.open(aiUrl, '_blank');
+            });
+        }
+
+        function init() {
+            populateSpecialistSelect();
+            OutputProfileEngine.render('secOpsOutputProfileContainer');
+            syncModeUI();
+            generatePrompt();
+        }
+
+        function onModeChange() {
+            syncModeUI();
+            generatePrompt();
+        }
+
+        return { init, onModeChange, onSpecialistChange: generatePrompt, generatePrompt, copyPrompt, generateAndOpenWorkspace };
+    })();
+
+    // ==================== LIVE PREVIEW (HTML-ONLY, NEVER CREATES A PDF/BLOB) ====================
+    // IMPORTANT: This preview must NEVER call jsPDF, pdf.output(), or URL.createObjectURL().
+    // Android Chrome/WebView treats an iframe navigated to a PDF blob: URL as a real file,
+    // which can trigger the native "Open/Download PDF" dialog and crash the page. To avoid
+    // that entirely, the preview renders plain HTML text via `srcdoc` — there is no file,
+    // no Blob, and no download surface of any kind.
+    let livePreviewTimer = null;
+    let livePreviewEverShown = false;
+
+    function isWorkspaceVisible() {
+        const ws = document.getElementById('eimsWorkspace');
+        const frame = document.getElementById('livePreviewFrame');
+        return !!(ws && ws.style.display !== 'none' && frame && frame.offsetParent !== null);
+    }
+
+    function scheduleLivePreview() {
+        // Never touch the preview while a real download is in flight.
+        if (pdfDownloadInProgress) return;
+        // Skip entirely while the workspace/preview isn't visible — no wasted CPU at startup.
+        if (!livePreviewEverShown && !isWorkspaceVisible()) return;
+        clearTimeout(livePreviewTimer);
+        livePreviewTimer = setTimeout(renderLivePreview, 400);
+    }
+
+    function renderLivePreview() {
+        if (pdfDownloadInProgress) return;
+        const frame = document.getElementById('livePreviewFrame');
+        if (!frame) return;
+        if (!isWorkspaceVisible()) return;
+        livePreviewEverShown = true;
+
+        try {
+            const judul = escapeHtml((document.getElementById('judulDokumen').value.trim() || 'BERITA ACARA KEJADIAN (BAK)').toUpperCase());
+            const tgl = escapeHtml(document.getElementById('tgl').value || '-');
+            const jam = escapeHtml(document.getElementById('jam').value || '-');
+            const lokasi = escapeHtml(document.getElementById('lokasi').value || '-');
+            const isiRaw = document.getElementById('ai_out').value.trim() || document.getElementById('ket').value.trim()
+                || '(Belum ada isi laporan — isi kronologi atau tempel hasil AI untuk melihat preview)';
+            const isiHtml = escapeHtml(isiRaw).replace(/\n/g, '<br>');
+
+            // Plain, self-contained HTML document — rendered inline, never downloaded.
+            const previewHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+                body{font-family:'Times New Roman',Georgia,serif;margin:0;padding:24px;background:#fff;color:#111;}
+                h1{font-size:16px;text-align:center;margin:0 0 10px;letter-spacing:0.3px;}
+                .meta{font-size:11px;color:#333;margin-bottom:16px;border-bottom:1px solid #ccc;padding-bottom:10px;}
+                .body-text{font-size:12.5px;line-height:1.7;white-space:normal;word-wrap:break-word;}
+            </style></head><body>
+                <h1>${judul}</h1>
+                <div class="meta">Tanggal: ${tgl} &nbsp;|&nbsp; Waktu: ${jam} &nbsp;|&nbsp; Lokasi: ${lokasi}</div>
+                <div class="body-text">${isiHtml}</div>
+            </body></html>`;
+
+            // srcdoc renders as plain markup in the sandboxed iframe — no request, no file,
+            // no MIME type Android could interpret as a downloadable document.
+            frame.srcdoc = previewHtml;
+        } catch (e) {
+            // silent fail — preview is a convenience feature, not core engine
+        }
+    }
+
+    function pauseLivePreviewForDownload() {
+        pdfDownloadInProgress = true;
+        clearTimeout(livePreviewTimer);
+    }
+
+    function resumeLivePreviewAfterDownload() {
+        pdfDownloadInProgress = false;
+        scheduleLivePreview();
+    }
+    
+    // File Header Logo (Kiri & Kanan) — disimpan persis seperti file asli, tanpa batas ukuran
+    document.getElementById('headerLogoLeft').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { headerLogoLeftData = ev.target.result; };
+            reader.readAsDataURL(file);
+        }
+    });
+    document.getElementById('headerLogoRight').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { headerLogoRightData = ev.target.result; };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Upload foto & binding delete foto per item (PATCH WAJIB #2)
+    document.getElementById('fotoInput').addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        if(files.length === 0) return;
+
+
+if(fotoDataList.length >= 20){
+    alert(
+        "⚠️ Foto sangat banyak.\n\n" +
+        "PDF mungkin lebih berat tergantung RAM HP Android."
+    );
+}
+        
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+
+    // TANPA RESIZE / TANPA KOMPRESI - GUNAKAN GAMBAR ASLI APA ADANYA
+    fotoDataList.push({
+        dataURL: ev.target.result,
+        nama: file.name,
+        keterangan: ''
+    });
+
+    renderFotoEditor();
+
+    const totalBytes = fotoDataList.reduce((sum, f) => sum + Math.round(f.dataURL.length * 0.75), 0);
+    const totalMB = (totalBytes / (1024 * 1024)).toFixed(1);
+
+    document.getElementById('file-status').innerText =
+        `${fotoDataList.length} foto bukti siap (kualitas asli, tanpa kompresi) — total ±${totalMB} MB`;
+    addAuditEntry(`Lampiran foto ditambahkan (${fotoDataList.length} total)`);
+};
+
+reader.readAsDataURL(file);
+        });
+
+        e.target.value = '';
+    });
+    
+    // PATCH: DELETE FOTO PER ITEM DENGAN CONFIRM
+    function hapusFoto(index) {
+        if(confirm(`Hapus foto bukti ini dari laporan? Data akan dihapus secara permanen.`)) {
+            fotoDataList.splice(index, 1);
+            renderFotoEditor();
+            if (fotoDataList.length) {
+                const totalBytes = fotoDataList.reduce((sum, f) => sum + Math.round(f.dataURL.length * 0.75), 0);
+                const totalMB = (totalBytes / (1024 * 1024)).toFixed(1);
+                document.getElementById('file-status').innerText = `${fotoDataList.length} foto bukti tersisa — total ±${totalMB} MB`;
+            } else {
+                document.getElementById('file-status').innerText = "Tidak ada foto. Upload bukti.";
+            }
+        }
+    }
+    
+    function renderFotoEditor() {
+        const container = document.getElementById('fotoListEditor');
+        let html = '<label>📝 KETERANGAN FOTO BUKTI (LAMPIRAN RESMI)</label>';
+        fotoDataList.forEach((foto, idx) => {
+            html += `
+                <div class="foto-item-editor">
+                    <img src="${foto.dataURL}" class="foto-preview" alt="foto bukti">
+                    <div class="foto-keterangan">
+                        <textarea placeholder="Keterangan foto: jelaskan isi, waktu, atau bukti dari foto ini..." id="keterangan_foto_${idx}" rows="3">${escapeHtml(foto.keterangan)}</textarea>
+                    </div>
+                    <button class="delete-foto-btn" onclick="hapusFoto(${idx})">🗑️ Hapus Foto</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        fotoDataList.forEach((_, idx) => {
+            const ta = document.getElementById(`keterangan_foto_${idx}`);
+            if(ta) ta.addEventListener('input', (e) => { fotoDataList[idx].keterangan = e.target.value; });
+        });
+    }
+    
+    function escapeHtml(str) { 
+        if(!str) return ''; 
+        return str.replace(/[&<>]/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[m])); 
+    }
+    
+    // ========== PATCH WAJIB #3: ENTERPRISE PROMPT — SATU PROMPT COMPILER ENGINE ==========
+    // BUG FIX: sebelumnya prompt dibangun sebagai string ad-hoc terpisah dari
+    // PromptCompiler (EIMS Prompt Intelligence Engine V4.0), tidak pernah
+    // ditampilkan di Prompt Preview, dan AI Workspace dibuka meski Prompt gagal/kosong.
+    // Sekarang: SATU sumber (PromptCompiler) dipakai oleh Generate Prompt, Copy Prompt,
+    // dan Generate Prompt Enterprise & Buka AI. Prompt WAJIB tampil di Preview dulu,
+    // baru AI Workspace dibuka; clipboard punya fallback manual bila API gagal.
+    function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text).then(() => true).catch(() => false);
+        }
+        return Promise.resolve(false);
+    }
+
+    function generateEnterprisePrompt() {
+        if (!validateRequiredFields()) {
+            addAuditEntry('Validasi gagal — field wajib belum lengkap');
+            return null;
+        }
+        const judulUntukPrompt = document.getElementById('judulDokumen').value.trim() || 'BERITA ACARA KEJADIAN (BAK)';
+        const templateName = document.getElementById('templateDokumen').value;
+        const prompt = PromptCompiler.buildFinalPrompt(templateName, judulUntukPrompt);
+
+        const preview = document.getElementById('enterprisePromptPreview');
+        if (preview) preview.value = prompt;
+        if (typeof PromptStatisticsEngine !== 'undefined') PromptStatisticsEngine.renderInto('enterprisePromptStats', prompt);
+        return prompt;
+    }
+
+    function copyEnterprisePrompt() {
+        const prompt = generateEnterprisePrompt();
+        if (!prompt) return;
+        copyTextToClipboard(prompt).then(ok => {
+            addAuditEntry('Generate Prompt — disalin ke clipboard');
+            alert(ok ? '✅ Prompt disalin ke clipboard.' : '⚠️ Clipboard gagal — salin manual dari kotak Prompt Preview.');
+        });
+    }
+
+    function buatPromptEnterprise() {
+        const templateName = document.getElementById('templateDokumen').value;
+        const prompt = generateEnterprisePrompt();
+        if (!prompt) return; // Prompt kosong/gagal — AI Workspace TIDAK dibuka.
+
+        copyTextToClipboard(prompt).then(ok => {
+            const aiSelect = document.getElementById('aiWorkspace');
+            let aiUrl = aiSelect.value;
+            let aiName = aiSelect.options[aiSelect.selectedIndex].text;
+
+            if (aiUrl === 'CUSTOM') {
+                aiUrl = document.getElementById('customAIUrl').value.trim();
+                aiName = document.getElementById('customAINama').value.trim() || 'AI Custom';
+                if (!aiUrl) {
+                    alert("✅ Prompt sudah tampil di Prompt Preview. Isi dulu URL AI Custom di Panel 0 untuk membuka otomatis, atau salin manual.");
+                    addAuditEntry('Generate Prompt (AI Custom URL belum diisi)');
+                    return;
+                }
+            }
+
+            addAuditEntry(`Generate Prompt Enterprise — template: ${templateName || 'Standar'}, AI: ${aiName}`);
+            alert(ok
+                ? `✅ PROMPT ENTERPRISE disalin! Membuka ${aiName} — tinggal paste (Ctrl+V) untuk generate laporan.`
+                : `⚠️ Clipboard gagal — Prompt tetap tampil di Prompt Preview, salin manual lalu paste ke ${aiName}.`);
+            window.open(aiUrl, '_blank');
+        });
+    }
+    
+    // ========== ENGINE PDF UTAMA (PRESERVE SEMUA STRUKTUR) ==========
+    function detectImageFormat(dataUrl) {
+        if (/^data:image\/jpe?g/i.test(dataUrl)) return 'JPEG';
+        return 'PNG';
+    }
+
+    function drawHeaderLogo(pdf, dataUrl, side, boxSize, topY) {
+        try {
+            const format = detectImageFormat(dataUrl);
+            const props = pdf.getImageProperties(dataUrl);
+            const aspectRatio = props.width / props.height;
+
+            let renderW = boxSize;
+            let renderH = renderW / aspectRatio;
+            if (renderH > boxSize) {
+                renderH = boxSize;
+                renderW = renderH * aspectRatio;
+            }
+
+            const margin = 15;
+            const x = side === 'left'
+                ? margin + (boxSize - renderW) / 2
+                : (210 - margin - boxSize) + (boxSize - renderW) / 2;
+            const y = topY + (boxSize - renderH) / 2;
+
+            pdf.addImage(dataUrl, format, x, y, renderW, renderH, undefined, 'FAST');
+        } catch (err) {
+            // Lewati logo jika gagal diproses, header teks tetap tampil
+        }
+    }
+
+    // ==================== QR VERIFIKASI ====================
+    function generateQrDataUrl(text) {
+        if (typeof QRCode === 'undefined') return null;
+        try {
+            const holder = document.createElement('div');
+            holder.style.display = 'none';
+            document.body.appendChild(holder);
+            new QRCode(holder, { text: text, width: 160, height: 160 });
+            const canvas = holder.querySelector('canvas');
+            const dataUrl = canvas ? canvas.toDataURL('image/png') : null;
+            document.body.removeChild(holder);
+            return dataUrl;
+        } catch (err) {
+            return null;
+        }
+    }
+
+    // ==================== COVER PAGE (OPSIONAL) ====================
+    async function drawCoverPage(pdf, docNumberValue) {
+        const pageWidth = 210;
+        const pageHeight = 297;
+
+        const orgName = document.getElementById('headerOrgName').value.trim();
+        const judul = (document.getElementById('judulDokumen').value.trim() || 'DOKUMEN RESMI').toUpperCase();
+        const accentHex = document.getElementById('accentColor').value || '#c80000';
+        const r = parseInt(accentHex.slice(1,3), 16);
+        const g = parseInt(accentHex.slice(3,5), 16);
+        const b = parseInt(accentHex.slice(5,7), 16);
+
+        let y = 60;
+
+        const logoToggle = document.getElementById('pdfElLogo');
+        if ((!logoToggle || logoToggle.checked) && headerLogoLeftData) {
+            try {
+                const format = detectImageFormat(headerLogoLeftData);
+                const props = pdf.getImageProperties(headerLogoLeftData);
+                const w = 40;
+                const h = w * (props.height / props.width);
+                pdf.addImage(headerLogoLeftData, format, (pageWidth - w) / 2, y, w, h, undefined, 'FAST');
+                y += h + 15;
+            } catch (err) { /* lewati */ }
+        }
+
+        if (orgName) {
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(16);
+            pdf.setTextColor(r, g, b);
+            pdf.text(orgName.toUpperCase(), pageWidth / 2, y, { align: 'center' });
+            y += 14;
+        }
+
+        pdf.setFont(getPdfFontFamily(), "bold");
+        pdf.setFontSize(22);
+        pdf.setTextColor(0, 0, 0);
+        const judulLines = pdf.splitTextToSize(judul, 150);
+        judulLines.forEach(line => {
+            pdf.text(line, pageWidth / 2, y, { align: 'center' });
+            y += 10;
+        });
+
+        y += 10;
+        pdf.setFont(getPdfFontFamily(), "normal");
+        pdf.setFontSize(12);
+        pdf.text(`No: ${docNumberValue}`, pageWidth / 2, y, { align: 'center' });
+        y += 8;
+
+        const revisi = document.getElementById('docRevisi').value.trim();
+        const versi = document.getElementById('docVersi').value.trim();
+        const revVerParts = [revisi, versi].filter(Boolean);
+        if (revVerParts.length) {
+            pdf.text(revVerParts.join(' | '), pageWidth / 2, y, { align: 'center' });
+            y += 8;
+        }
+
+        const tglValue = document.getElementById('tgl').value;
+        if (tglValue) {
+            pdf.text(new Date(tglValue).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }), pageWidth / 2, y, { align: 'center' });
+            y += 8;
+        }
+
+        const classificationToggle = document.getElementById('pdfElClassification');
+        if (classificationToggle && classificationToggle.checked) {
+            const classSel = document.getElementById('classification').value;
+            const classLabel = classSel === 'CUSTOM'
+                ? (document.getElementById('classificationCustom').value || '').toUpperCase()
+                : classSel;
+            if (classLabel) {
+                pdf.setFont("helvetica", "bold");
+                pdf.setFontSize(11);
+                pdf.setTextColor(120, 0, 0);
+                pdf.text(classLabel, pageWidth / 2, y + 6, { align: 'center' });
+                pdf.setTextColor(0, 0, 0);
+            }
+        }
+
+        const qrToggle = document.getElementById('pdfElQr');
+        if (qrToggle && qrToggle.checked) {
+            const qrData = generateQrDataUrl(`${judul} | No: ${docNumberValue} | ${orgName}`);
+            if (qrData) {
+                const qrSize = 35;
+                pdf.addImage(qrData, 'PNG', (pageWidth - qrSize) / 2, pageHeight - 60, qrSize, qrSize, undefined, 'FAST');
+                pdf.setFontSize(8);
+                pdf.setTextColor(120, 120, 120);
+                pdf.text('Scan untuk verifikasi dokumen', pageWidth / 2, pageHeight - 22, { align: 'center' });
+                pdf.setTextColor(0, 0, 0);
+            }
+        }
+    }
+
+    async function drawPdfHeader(pdf) {
+        const pageWidth = 210;
+        const margin = 15;
+
+        const orgName = (document.getElementById('headerOrgName') || {}).value || '';
+        const orgAddress = (document.getElementById('headerOrgAddress') || {}).value || '';
+
+        const logoToggle = document.getElementById('pdfElLogo');
+        const logosEnabled = !logoToggle || logoToggle.checked;
+
+        const hasLeftLogo = logosEnabled && !!headerLogoLeftData;
+        const hasRightLogo = logosEnabled && !!headerLogoRightData;
+        const hasText = orgName.trim() !== '' || orgAddress.trim() !== '';
+
+        if (!hasLeftLogo && !hasRightLogo && !hasText) {
+            return 20;
+        }
+
+        const boxSize = 22;
+        const topY = 8;
+        const textAreaX = margin + boxSize + 4;
+        const textAreaWidth = pageWidth - (margin + boxSize + 4) * 2;
+        let textCursorY = topY + 6;
+
+        if (hasLeftLogo) {
+            drawHeaderLogo(pdf, headerLogoLeftData, 'left', boxSize, topY);
+        }
+        if (hasRightLogo) {
+            drawHeaderLogo(pdf, headerLogoRightData, 'right', boxSize, topY);
+        }
+
+        if (orgName.trim() !== '') {
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(14);
+            const accentHex = ((document.getElementById('accentColor') || {}).value) || '#c80000';
+            const r = parseInt(accentHex.slice(1,3), 16);
+            const g = parseInt(accentHex.slice(3,5), 16);
+            const b = parseInt(accentHex.slice(5,7), 16);
+            pdf.setTextColor(r, g, b);
+            pdf.text(orgName.trim().toUpperCase(), pageWidth / 2, textCursorY, { align: 'center', maxWidth: textAreaWidth });
+            textCursorY += 6;
+        }
+
+        if (orgAddress.trim() !== '') {
+            pdf.setFont("helvetica", "normal");
+            pdf.setFontSize(9);
+            pdf.setTextColor(0, 0, 0);
+            const addressLines = pdf.splitTextToSize(orgAddress.trim(), textAreaWidth);
+            addressLines.forEach(line => {
+                pdf.text(line, pageWidth / 2, textCursorY, { align: 'center' });
+                textCursorY += 4.5;
+            });
+        }
+
+        // Badge Klasifikasi (opsional)
+        const classificationToggle = document.getElementById('pdfElClassification');
+        if (classificationToggle && classificationToggle.checked) {
+            const classSel = document.getElementById('classification').value;
+            const classLabel = classSel === 'CUSTOM'
+                ? (document.getElementById('classificationCustom').value || '').toUpperCase()
+                : classSel;
+            if (classLabel) {
+                pdf.setFont("helvetica", "bold");
+                pdf.setFontSize(8);
+                pdf.setTextColor(120, 0, 0);
+                pdf.text(classLabel, pageWidth - margin, 6, { align: 'right' });
+                pdf.setTextColor(0, 0, 0);
+            }
+        }
+
+        // Reset warna & font agar tidak memengaruhi konten lain
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFont(getPdfFontFamily(), "normal");
+
+        const logoBottom = topY + boxSize;
+        const lineY = Math.max(logoBottom, textCursorY) + 3;
+
+        pdf.setLineWidth(0.8);
+        pdf.line(margin, lineY, pageWidth - margin, lineY);
+        pdf.setLineWidth(0.2);
+
+        return lineY + 8;
+    }
+
+    // ==================== SAKSI / PIHAK TAMBAHAN ====================
+    function tambahSaksi() {
+        saksiList.push({ nama: '', jabatan: '' });
+        renderSaksiList();
+    }
+
+    function hapusSaksi(index) {
+        saksiList.splice(index, 1);
+        renderSaksiList();
+    }
+
+    function updateSaksi(index, field, value) {
+        if (saksiList[index]) saksiList[index][field] = value;
+    }
+
+    function renderSaksiList() {
+        const container = document.getElementById('saksiList');
+        if (!container) return;
+        container.innerHTML = saksiList.map((s, idx) => `
+            <div class="saksi-row">
+                <input placeholder="Nama Saksi" value="${escapeHtml(s.nama)}" onchange="updateSaksi(${idx},'nama',this.value)">
+                <input placeholder="Jabatan / Keterangan" value="${escapeHtml(s.jabatan)}" onchange="updateSaksi(${idx},'jabatan',this.value)">
+                <button type="button" class="small-btn" onclick="hapusSaksi(${idx})">✖️</button>
+            </div>
+        `).join('');
+    }
+
+    // ==================== JENIS DOKUMEN ====================
+    function applyJenisDokumen() {
+        const jenis = document.getElementById('jenisDokumen').value;
+        const judulInput = document.getElementById('judulDokumen');
+        if (jenis !== 'CUSTOM') {
+            judulInput.value = jenis;
+        }
+    }
+
+    // ==================== NOMOR DOKUMEN OTOMATIS ====================
+    function getRomawiBulan(monthIndex) {
+        const romawi = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+        return romawi[monthIndex] || 'I';
+    }
+
+    function generateDocNumber() {
+        const format = (document.getElementById('formatNomor').value || '{JENIS}/{ORG}/{ROMAWI}/{TAHUN}/{URUT}');
+        const tglValue = document.getElementById('tgl').value;
+        const dateObj = tglValue ? new Date(tglValue) : new Date();
+
+        const jenis = (document.getElementById('jenisDokumen').value || 'DOK').split(' ')[0];
+        const orgName = (document.getElementById('headerOrgName').value || 'ORG').trim();
+        const orgInitial = orgName
+            ? orgName.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 6)
+            : 'ORG';
+        const romawi = getRomawiBulan(dateObj.getMonth());
+        const tahun = dateObj.getFullYear();
+
+        let counter = 1;
+        try {
+            const stored = JSON.parse(localStorage.getItem(COUNTER_STORAGE_KEY) || '{}');
+            const key = `${tahun}`;
+            counter = (stored[key] || 0) + 1;
+            stored[key] = counter;
+            localStorage.setItem(COUNTER_STORAGE_KEY, JSON.stringify(stored));
+        } catch (err) {
+            counter = Math.floor(Math.random() * 900) + 100;
+        }
+        const urut = String(counter).padStart(3, '0');
+
+        return format
+            .replace('{JENIS}', jenis)
+            .replace('{ORG}', orgInitial)
+            .replace('{ROMAWI}', romawi)
+            .replace('{TAHUN}', tahun)
+            .replace('{URUT}', urut);
+    }
+
+    // ==================== WATERMARK & FOOTER ====================
+    function drawWatermarkAndFooter(pdf, docNumberValue) {
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const totalPages = pdf.internal.getNumberOfPages();
+        const useWatermark = document.getElementById('useWatermark').checked;
+        const watermarkText = (document.getElementById('watermarkText').value || 'DRAFT').toUpperCase();
+        const showFooter = document.getElementById('pdfElFooter').checked;
+        const printedDate = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+        for (let i = 1; i <= totalPages; i++) {
+            pdf.setPage(i);
+
+            if (useWatermark) {
+                pdf.saveGraphicsState && pdf.saveGraphicsState();
+                pdf.setFont("helvetica", "bold");
+                pdf.setFontSize(60);
+                pdf.setTextColor(200, 200, 200);
+                if (pdf.GState) {
+                    pdf.setGState(new pdf.GState({ opacity: 0.25 }));
+                }
+                pdf.text(watermarkText, pageWidth / 2, pageHeight / 2, {
+                    align: 'center',
+                    angle: 45
+                });
+                if (pdf.GState) {
+                    pdf.setGState(new pdf.GState({ opacity: 1 }));
+                }
+                pdf.restoreGraphicsState && pdf.restoreGraphicsState();
+            }
+
+            if (showFooter) {
+                pdf.setFont(getPdfFontFamily(), "normal");
+                pdf.setFontSize(8);
+                pdf.setTextColor(120, 120, 120);
+                pdf.text(`Halaman ${i} dari ${totalPages}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
+                pdf.text(`Dicetak: ${printedDate}`, 15, pageHeight - 10);
+                pdf.setTextColor(0, 0, 0);
+            }
+        }
+
+        const useCover = document.getElementById('pdfElCover').checked;
+        const qrToggle = document.getElementById('pdfElQr');
+        if (!useCover && qrToggle && qrToggle.checked) {
+            const qrData = generateQrDataUrl(`No: ${docNumberValue}`);
+            if (qrData) {
+                pdf.setPage(totalPages);
+                pdf.addImage(qrData, 'PNG', 15, pageHeight - 40, 22, 22, undefined, 'FAST');
+            }
+        }
+    }
+
+    // ==================== PROFIL ORGANISASI (MULTI-LOKASI) ====================
+    function getProfiles() {
+        try {
+            return JSON.parse(localStorage.getItem(PROFIL_STORAGE_KEY) || '{}');
+        } catch (err) {
+            return {};
+        }
+    }
+
+    function loadProfileList() {
+        const profiles = getProfiles();
+        const select = document.getElementById('profilList');
+        if (!select) return;
+        const names = Object.keys(profiles);
+        select.innerHTML = '<option value="">-- Belum ada profil dipilih --</option>' +
+            names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    }
+
+    function saveProfile() {
+        const name = document.getElementById('profilNamaBaru').value.trim();
+        if (!name) { alert("⚠️ Isi nama profil terlebih dahulu."); return; }
+
+        const profiles = getProfiles();
+        profiles[name] = {
+            headerOrgName: document.getElementById('headerOrgName').value,
+            headerOrgAddress: document.getElementById('headerOrgAddress').value,
+            judulDokumen: document.getElementById('judulDokumen').value,
+            jenisDokumen: document.getElementById('jenisDokumen').value,
+            accentColor: document.getElementById('accentColor').value,
+            formatNomor: document.getElementById('formatNomor').value,
+            headerLogoLeftData: headerLogoLeftData,
+            headerLogoRightData: headerLogoRightData
+        };
+
+        try {
+            localStorage.setItem(PROFIL_STORAGE_KEY, JSON.stringify(profiles));
+            loadProfileList();
+            document.getElementById('profilList').value = name;
+            alert("✅ Profil \"" + name + "\" tersimpan. Bisa dipakai lagi kapan saja.");
+        } catch (err) {
+            alert("⚠️ Gagal menyimpan profil (kemungkinan penyimpanan penuh). Coba gunakan logo berukuran lebih kecil.");
+        }
+    }
+
+    function loadProfile(name) {
+        if (!name) return;
+        const profiles = getProfiles();
+        const p = profiles[name];
+        if (!p) return;
+
+        document.getElementById('headerOrgName').value = p.headerOrgName || '';
+        document.getElementById('headerOrgAddress').value = p.headerOrgAddress || '';
+        document.getElementById('judulDokumen').value = p.judulDokumen || 'BERITA ACARA KEJADIAN (BAK)';
+        document.getElementById('jenisDokumen').value = p.jenisDokumen || 'BERITA ACARA KEJADIAN (BAK)';
+        document.getElementById('accentColor').value = p.accentColor || '#c80000';
+        document.getElementById('formatNomor').value = p.formatNomor || '{JENIS}/{ORG}/{ROMAWI}/{TAHUN}/{URUT}';
+        headerLogoLeftData = p.headerLogoLeftData || null;
+        headerLogoRightData = p.headerLogoRightData || null;
+        document.getElementById('profilNamaBaru').value = name;
+    }
+
+    function deleteProfile() {
+        const select = document.getElementById('profilList');
+        const name = select.value;
+        if (!name) { alert("⚠️ Pilih profil yang mau dihapus terlebih dahulu."); return; }
+        if (!confirm(`Hapus profil "${name}"?`)) return;
+
+        const profiles = getProfiles();
+        delete profiles[name];
+        localStorage.setItem(PROFIL_STORAGE_KEY, JSON.stringify(profiles));
+        loadProfileList();
+    }
+
+    // ==================== AUTOSAVE DRAFT ====================
+    function collectDraftData() {
+        const fieldIds = ['tgl','jam','nama_p1','jabatan_p1','nama_p2','jabatan_p2','nama_atasan',
+            'jabatan_atasan','lokasi','ket','judulDokumen','headerOrgName','headerOrgAddress',
+            'ai_out','jenisDokumen','accentColor','formatNomor','watermarkText','templateDokumen',
+            'classification','classificationCustom','orgType','orgTypeCustom','docRevisi','docVersi',
+            'temaPreset','themePrimary','pdfFont','aiWorkspace','customAINama','customAIUrl'];
+        const data = { fields: {}, saksiList, evidenceList, savedAt: Date.now() };
+        fieldIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) data.fields[id] = el.value;
+        });
+        const wmEl = document.getElementById('useWatermark');
+        if (wmEl) data.useWatermark = wmEl.checked;
+        return data;
+    }
+
+    function autosaveDraft() {
+        try {
+            const data = collectDraftData();
+            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(data));
+            const badge = document.getElementById('draftStatus');
+            if (badge) {
+                const t = new Date().toLocaleTimeString('id-ID');
+                badge.textContent = `💾 Draft tersimpan otomatis (${t})`;
+            }
+        } catch (err) {
+            // Storage penuh / gagal, lewati diam-diam agar tidak mengganggu user
+        }
+    }
+
+    function restoreDraftIfAny() {
+        let saved;
+        try {
+            saved = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || 'null');
+        } catch (err) {
+            saved = null;
+        }
+        if (!saved || !saved.fields) return;
+
+        const savedDate = new Date(saved.savedAt).toLocaleString('id-ID');
+        if (!confirm(`📝 Ditemukan draft tersimpan (${savedDate}). Lanjutkan draft ini?`)) {
+            localStorage.removeItem(DRAFT_STORAGE_KEY);
+            return;
+        }
+
+        Object.keys(saved.fields).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = saved.fields[id];
+        });
+        if (typeof saved.useWatermark === 'boolean') {
+            const wmEl = document.getElementById('useWatermark');
+            if (wmEl) wmEl.checked = saved.useWatermark;
+        }
+        saksiList = saved.saksiList || [];
+        renderSaksiList();
+        evidenceList = saved.evidenceList || [];
+        renderEvidenceList();
+    }
+
+    function clearDraft() {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+        const badge = document.getElementById('draftStatus');
+        if (badge) badge.textContent = '';
+    }
+
+    // ==================== EXPORT WORD (.doc) ====================
+    function exportWord() {
+        addAuditEntry('Export Word (.doc)');
+        const laporanText = document.getElementById('ai_out').value;
+        if (!laporanText.trim()) { alert("⚠️ Isi laporan terlebih dahulu sebelum export Word."); return; }
+
+        const judul = document.getElementById('judulDokumen').value.trim() || 'BERITA ACARA KEJADIAN (BAK)';
+        const orgName = document.getElementById('headerOrgName').value.trim();
+        const orgAddress = document.getElementById('headerOrgAddress').value.trim();
+        const namaPelapor = document.getElementById('nama_p1').value || '...........................';
+        const jabatanPelapor = document.getElementById('jabatan_p1').value || 'Pelapor';
+        const namaPenerima = document.getElementById('nama_p2').value || '...........................';
+        const jabatanPenerima = document.getElementById('jabatan_p2').value || 'Penerima Laporan';
+        const docNumber = generateDocNumber();
+        const bodyHtml = escapeHtml(laporanText).replace(/\n/g, '<br>');
+
+        const saksiHtml = saksiList.filter(s => s.nama.trim()).map(s =>
+            `<p>${escapeHtml(s.nama)} — ${escapeHtml(s.jabatan || 'Saksi')}</p>`
+        ).join('');
+
+        const html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+        <head><meta charset="utf-8"><title>${escapeHtml(judul)}</title></head>
+        <body style="font-family:'Times New Roman',serif;">
+            ${orgName ? `<h2 style="text-align:center;color:#c00000;">${escapeHtml(orgName)}</h2>` : ''}
+            ${orgAddress ? `<p style="text-align:center;font-size:11px;">${escapeHtml(orgAddress).replace(/\n/g,'<br>')}</p>` : ''}
+            <hr>
+            <h2 style="text-align:center;">${escapeHtml(judul)}</h2>
+            <p>No: ${escapeHtml(docNumber)}</p>
+            <p>${bodyHtml}</p>
+            <br><br>
+            <table style="width:100%;text-align:center;">
+                <tr><td>Pihak I</td><td>Pihak II</td></tr>
+                <tr><td><br><br><br>____________________</td><td><br><br><br>____________________</td></tr>
+                <tr><td>${escapeHtml(namaPelapor)}<br>${escapeHtml(jabatanPelapor)}</td><td>${escapeHtml(namaPenerima)}<br>${escapeHtml(jabatanPenerima)}</td></tr>
+            </table>
+            ${saksiHtml ? `<h3>Saksi</h3>${saksiHtml}` : ''}
+        </body>
+        </html>`;
+
+        const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${judul.replace(/[^a-z0-9]/gi, '_')}_${namaPelapor.replace(/[^a-z0-9]/gi, '_')}.doc`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // ==================== HELPER: TOGGLE CUSTOM FIELD ====================
+    function toggleCustomField(selectId, customInputId) {
+        const sel = document.getElementById(selectId);
+        const inp = document.getElementById(customInputId);
+        if (!sel || !inp) return;
+        inp.style.display = (sel.value === 'CUSTOM') ? 'block' : 'none';
+    }
+
+    function toggleCustomAI() {
+        const sel = document.getElementById('aiWorkspace');
+        const row = document.getElementById('customAIRow');
+        row.style.display = (sel.value === 'CUSTOM') ? 'flex' : 'none';
+    }
+
+    // ==================== TEMA / THEME ====================
+    const THEME_PRESETS = {
+        merah: { accent: '#c80000', primary: '#3b82f6' },
+        biru:  { accent: '#1d4ed8', primary: '#1d4ed8' },
+        hijau: { accent: '#15803d', primary: '#15803d' },
+        mono:  { accent: '#374151', primary: '#374151' }
+    };
+
+    function applyTemaPreset() {
+        const preset = document.getElementById('temaPreset').value;
+        const customRow = document.getElementById('customThemeRow');
+        customRow.style.display = (preset === 'custom') ? 'flex' : 'none';
+
+        if (preset !== 'custom' && THEME_PRESETS[preset]) {
+            document.getElementById('accentColor').value = THEME_PRESETS[preset].accent;
+        } else if (preset === 'custom') {
+            document.getElementById('accentColor').value = document.getElementById('themePrimary').value;
+        }
+    }
+
+    // ==================== DASHBOARD KUSTOM ====================
+    function applyDashboardVisibility() {
+        const showData = document.getElementById('showPanelData').checked;
+        const showEdit = document.getElementById('showPanelEdit').checked;
+        document.getElementById('panelData').style.display = showData ? 'block' : 'none';
+        document.getElementById('panelEdit').style.display = showEdit ? 'block' : 'none';
+        try {
+            localStorage.setItem('bak_dashboard_visibility_v1', JSON.stringify({ showData, showEdit }));
+        } catch (err) { /* abaikan */ }
+    }
+
+    function restoreDashboardVisibility() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('bak_dashboard_visibility_v1') || 'null');
+            if (saved) {
+                document.getElementById('showPanelData').checked = saved.showData !== false;
+                document.getElementById('showPanelEdit').checked = saved.showEdit !== false;
+                applyDashboardVisibility();
+            }
+        } catch (err) { /* abaikan */ }
+    }
+
+    // ==================== WIZARD MODE (STEP FLEKSIBEL) ====================
+    let wizardStepIndex = 0;
+
+    function getWizardPanels() {
+        return ['panelProfil', 'panelData', 'panelEdit'].filter(id => {
+            const el = document.getElementById(id);
+            return el && el.dataset.wizardEnabled !== 'false';
+        });
+    }
+
+    function toggleWizardMode() {
+        const enabled = document.getElementById('wizardMode').checked;
+        const nav = document.getElementById('wizardNav');
+        nav.style.display = enabled ? 'flex' : 'none';
+        wizardStepIndex = 0;
+        updateWizardView(enabled);
+    }
+
+    function updateWizardView(enabled) {
+        const panels = ['panelProfil', 'panelData', 'panelEdit'];
+        const progressWrap = document.getElementById('wizardProgressWrap');
+        if (!enabled) {
+            panels.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'block';
+            });
+            if (progressWrap) progressWrap.style.display = 'none';
+            applyDashboardVisibility();
+            return;
+        }
+        panels.forEach((id, idx) => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = (idx === wizardStepIndex) ? 'block' : 'none';
+        });
+        document.getElementById('wizardStepLabel').textContent = `Langkah ${wizardStepIndex + 1} dari ${panels.length}`;
+
+        if (progressWrap) {
+            progressWrap.style.display = 'block';
+            const pct = Math.round(((wizardStepIndex + 1) / panels.length) * 100);
+            document.getElementById('wizardProgressFill').style.width = pct + '%';
+            const dotsEl = document.getElementById('wizardStepDots');
+            dotsEl.innerHTML = panels.map((_, idx) => {
+                const cls = idx === wizardStepIndex ? 'active' : (idx < wizardStepIndex ? 'done' : '');
+                return `<div class="eims-step-dot ${cls}">${idx + 1}</div>`;
+            }).join('');
+        }
+    }
+
+    function wizardNext() {
+        const panels = ['panelProfil', 'panelData', 'panelEdit'];
+        if (wizardStepIndex < panels.length - 1) wizardStepIndex++;
+        updateWizardView(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function wizardPrev() {
+        if (wizardStepIndex > 0) wizardStepIndex--;
+        updateWizardView(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ==================== TEMPLATE DOKUMEN (BAWAAN + CUSTOM) ====================
+    const TEMPLATE_STORAGE_KEY = 'bak_custom_templates_v1';
+
+    const TEMPLATE_PRESETS = {
+        "Kehilangan Barang": "Telah terjadi kehilangan barang di lokasi tersebut di atas. Barang yang hilang, kondisi terakhir sebelum hilang, dan kronologi ditemukannya kehilangan agar dijelaskan secara rinci.",
+        "Pencurian": "Telah terjadi dugaan tindak pencurian di lokasi tersebut di atas. Uraikan kronologi kejadian, barang/aset yang hilang, saksi yang melihat kejadian, dan tindakan awal yang sudah diambil.",
+        "Kebakaran": "Telah terjadi kebakaran di lokasi tersebut di atas. Uraikan waktu terdeteksinya api, area yang terdampak, tindakan pemadaman yang dilakukan, serta estimasi kerugian.",
+        "Kecelakaan Kerja": "Telah terjadi kecelakaan kerja di lokasi tersebut di atas. Uraikan kronologi kejadian, korban yang terlibat, penyebab awal, serta tindakan P3K/medis yang sudah diberikan.",
+        "Pelanggaran SOP": "Telah ditemukan pelanggaran terhadap Standard Operating Procedure (SOP) di lokasi tersebut di atas. Uraikan SOP yang dilanggar, pihak yang terlibat, dan dampak dari pelanggaran tersebut.",
+        "Fire Alarm": "Telah terjadi aktivasi Fire Alarm di lokasi tersebut di atas. Uraikan zona yang teraktivasi, waktu aktivasi, hasil pengecekan lapangan, dan status akhir (false alarm/kejadian nyata).",
+        "FM200": "Telah terjadi aktivasi sistem pemadam FM200 di lokasi tersebut di atas. Uraikan zona proteksi yang teraktivasi, penyebab aktivasi, dan tindakan recovery ruangan yang dilakukan.",
+        "Security": "Telah terjadi kejadian terkait keamanan (security) di lokasi tersebut di atas. Uraikan kronologi kejadian, pihak yang terlibat, dan tindakan pengamanan yang sudah diambil.",
+        "Visitor": "Berkaitan dengan kunjungan tamu/visitor di lokasi tersebut di atas. Uraikan identitas tamu, tujuan kunjungan, waktu kedatangan dan kepulangan, serta pihak yang didampingi.",
+        "Data Center": "Telah terjadi kejadian operasional di area Data Center tersebut di atas. Uraikan sistem/perangkat yang terdampak, waktu kejadian, dampak terhadap layanan, dan tindakan mitigasi.",
+        "Serah Terima": "Merupakan dokumen serah terima antara pihak yang tersebut di atas. Uraikan barang/tanggung jawab/aset yang diserahterimakan beserta kondisinya saat serah terima."
+    };
+
+    function getCustomTemplates() {
+        try {
+            return JSON.parse(localStorage.getItem(TEMPLATE_STORAGE_KEY) || '{}');
+        } catch (err) {
+            return {};
+        }
+    }
+
+    function renderCustomTemplateOptions() {
+        const group = document.getElementById('templateCustomGroup');
+        if (!group) return;
+        const templates = getCustomTemplates();
+        const names = Object.keys(templates);
+        group.innerHTML = names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    }
+
+    function applyTemplateDokumen(name) {
+        renderQuickFill(name);
+        scheduleLivePreview();
+        if (!name) return;
+        const ketField = document.getElementById('ket');
+        if (TEMPLATE_PRESETS[name]) {
+            ketField.value = TEMPLATE_PRESETS[name];
+        } else {
+            const templates = getCustomTemplates();
+            if (templates[name]) ketField.value = templates[name];
+        }
+    }
+
+    function buatTemplateCustom() {
+        const name = prompt("Nama template custom baru:");
+        if (!name || !name.trim()) return;
+
+        const currentText = document.getElementById('ket').value ||
+            prompt("Isi teks starter untuk template ini:") || '';
+
+        const templates = getCustomTemplates();
+        templates[name.trim()] = currentText;
+
+        try {
+            localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(templates));
+            renderCustomTemplateOptions();
+            document.getElementById('templateDokumen').value = name.trim();
+            alert(`✅ Template custom "${name.trim()}" tersimpan dan siap dipakai lagi.`);
+        } catch (err) {
+            alert("⚠️ Gagal menyimpan template custom.");
+        }
+    }
+
+    function hapusTemplateCustom() {
+        const select = document.getElementById('templateDokumen');
+        const name = select.value;
+        const templates = getCustomTemplates();
+        if (!name || !templates[name]) {
+            alert("⚠️ Pilih template custom yang ingin dihapus (bukan template bawaan).");
+            return;
+        }
+        if (!confirm(`Hapus template custom "${name}"?`)) return;
+        delete templates[name];
+        localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(templates));
+        renderCustomTemplateOptions();
+        select.value = '';
+    }
+
+    // ==================== EVIDENCE TAMBAHAN (VIDEO/AUDIO/DOKUMEN/QR/GPS/LINK/LAINNYA) ====================
+    let evidenceList = [];
+
+    function tambahEvidence() {
+        evidenceList.push({ tipe: 'Video', tipeCustom: '', nilai: '' });
+        renderEvidenceList();
+    }
+
+    function hapusEvidence(index) {
+        evidenceList.splice(index, 1);
+        renderEvidenceList();
+    }
+
+    function updateEvidence(index, field, value) {
+        if (evidenceList[index]) evidenceList[index][field] = value;
+        if (field === 'tipe') renderEvidenceList();
+    }
+
+    function renderEvidenceList() {
+        const container = document.getElementById('evidenceList');
+        if (!container) return;
+        const tipeOptions = ['Foto','Video','Audio','Dokumen','QR Code','GPS','Link','Lampiran Lain','Custom'];
+        container.innerHTML = evidenceList.map((ev, idx) => `
+            <div class="saksi-row">
+                <select onchange="updateEvidence(${idx},'tipe',this.value)" style="flex:0 0 130px;">
+                    ${tipeOptions.map(t => `<option value="${t}" ${ev.tipe === t ? 'selected' : ''}>${t}</option>`).join('')}
+                </select>
+                ${ev.tipe === 'Custom' ? `<input placeholder="Nama tipe custom" value="${escapeHtml(ev.tipeCustom)}" onchange="updateEvidence(${idx},'tipeCustom',this.value)" style="flex:0 0 110px;">` : ''}
+                <input placeholder="Keterangan / Link / Koordinat / Nama file" value="${escapeHtml(ev.nilai)}" onchange="updateEvidence(${idx},'nilai',this.value)">
+                <button type="button" class="small-btn" onclick="hapusEvidence(${idx})">✖️</button>
+            </div>
+        `).join('');
+    }
+
+    // ==================== HELPER: FONT PDF SESUAI TEMA ====================
+    function getPdfFontFamily() {
+        const el = document.getElementById('pdfFont');
+        return (el && el.value) || 'times';
+    }
+
+    async function unduhPDF() {
+        if (pdfDownloadInProgress) return; // block double-tap / duplicate PDF generation
+        const laporanText = document.getElementById('ai_out').value;
+        if(!laporanText.trim()) { alert("⚠️ WAJIB: Isi atau paste teks laporan hasil AI terlebih dahulu!"); return; }
+
+        pauseLivePreviewForDownload();
+
+        try {
+
+        // Capture TTD Canvas (Kosong jika tidak digambar)
+        let ttdPelaporBase64 = null;
+        let ttdPenerimaBase64 = null;
+        
+        if(canvasPelapor && ctxPelapor) {
+            const buffer = ctxPelapor.getImageData(0, 0, canvasPelapor.width, canvasPelapor.height);
+            let isChanged = false;
+            for (let i = 0; i < buffer.data.length; i += 4) {
+                if (buffer.data[i] !== 255 || buffer.data[i+1] !== 255 || buffer.data[i+2] !== 255) {
+                    isChanged = true; break;
+                }
+            }
+            if(isChanged) ttdPelaporBase64 = canvasPelapor.toDataURL("image/png");
+        }
+        
+        if(canvasPenerima && ctxPenerima) {
+            const buffer = ctxPenerima.getImageData(0, 0, canvasPenerima.width, canvasPenerima.height);
+            let isChanged = false;
+            for (let i = 0; i < buffer.data.length; i += 4) {
+                if (buffer.data[i] !== 255 || buffer.data[i+1] !== 255 || buffer.data[i+2] !== 255) {
+                    isChanged = true; break;
+                }
+            }
+            if(isChanged) ttdPenerimaBase64 = canvasPenerima.toDataURL("image/png");
+        }
+        
+        const namaPelapor = document.getElementById('nama_p1').value || "...........................";
+        const jabatanPelapor = document.getElementById('jabatan_p1').value || "Pelapor";
+        const namaPenerima = document.getElementById('nama_p2').value || "...........................";
+        const jabatanPenerima = document.getElementById('jabatan_p2').value || "Penerima Laporan";
+        const namaAtasan = document.getElementById('nama_atasan').value || "...........................";
+        const jabatanAtasan = document.getElementById('jabatan_atasan').value || "Atasan / Mengetahui";
+          
+        try {
+
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    const pageWidth = 210;
+    const margin = 15;
+
+    const docNumberValue = generateDocNumber();
+
+    const useCover = document.getElementById('pdfElCover').checked;
+    if (useCover) {
+        await drawCoverPage(pdf, docNumberValue);
+        pdf.addPage();
+    }
+
+    const startY = await drawPdfHeader(pdf);
+
+    let y = startY;
+
+    // ================= HEADER =================
+
+    pdf.setFont(getPdfFontFamily(), "bold");
+    pdf.setFontSize(16);
+
+    const judulDokumen = document.getElementById('judulDokumen').value.trim() || "BERITA ACARA KEJADIAN (BAK)";
+
+    pdf.text(
+        judulDokumen.toUpperCase(),
+        pageWidth / 2,
+        y,
+        { align: 'center' }
+    );
+
+    y += 12;
+
+    // ================= NOMOR =================
+
+    pdf.setFont(getPdfFontFamily(), "normal");
+    pdf.setFontSize(11);
+
+    const fileDate =
+        document.getElementById('tgl').value ||
+        new Date().toISOString().slice(0,10);
+
+    const showNomor = document.getElementById('pdfElNomor').checked;
+    const revisi = document.getElementById('docRevisi').value.trim();
+    const versi = document.getElementById('docVersi').value.trim();
+
+    if (showNomor) {
+        pdf.text(
+            `No: ${docNumberValue}`,
+            margin,
+            y
+        );
+
+        const revVerParts = [];
+        if (revisi) revVerParts.push(revisi);
+        if (versi) revVerParts.push(versi);
+        if (revVerParts.length) {
+            pdf.text(revVerParts.join(' | '), pageWidth - margin, y, { align: 'right' });
+        }
+
+        y += 10;
+    }
+
+    // ================= ISI =================
+
+    const splitText =
+        pdf.splitTextToSize(
+            laporanText,
+            180
+        );
+
+    splitText.forEach(line => {
+
+        if (y > 270) {
+            pdf.addPage();
+            y = 20;
+        }
+
+        pdf.text(
+            line,
+            margin,
+            y
+        );
+
+        y += 6;
+    });
+
+    // ================= TTD =================
+
+pdf.addPage();
+
+pdf.setFont(getPdfFontFamily(), "bold");
+pdf.setFontSize(14);
+
+pdf.text(
+    "PENGESAHAN",
+    pageWidth / 2,
+    20,
+    { align: 'center' }
+);
+
+// ================= MENGETAHUI =================
+
+pdf.setFont(getPdfFontFamily(), "normal");
+pdf.setFontSize(12);
+
+pdf.text(
+    "Mengetahui,",
+    pageWidth / 2,
+    35,
+    { align: 'center' }
+);
+
+pdf.text(
+    jabatanAtasan,
+    pageWidth / 2,
+    42,
+    { align: 'center' }
+);
+
+// ================= GARIS ATASAN =================
+
+pdf.line(75, 95, 135, 95);
+
+pdf.text(
+    namaAtasan,
+    pageWidth / 2,
+    102,
+    { align: 'center' }
+);
+
+// ================= PIHAK =================
+
+pdf.text(
+    "Pihak I",
+    50,
+    125,
+    { align: 'center' }
+);
+
+pdf.text(
+    "Pihak II",
+    160,
+    125,
+    { align: 'center' }
+);
+
+// ===== TTD PELAPOR =====
+
+if (ttdPelaporBase64) {
+
+    pdf.addImage(
+        ttdPelaporBase64,
+        'PNG',
+        20,
+        130,
+        60,
+        30
+    );
+}
+
+// ===== TTD PENERIMA =====
+
+if (ttdPenerimaBase64) {
+
+    pdf.addImage(
+        ttdPenerimaBase64,
+        'PNG',
+        130,
+        130,
+        60,
+        30
+    );
+}
+
+// ================= GARIS NAMA =================
+
+pdf.line(20, 175, 80, 175);
+
+pdf.line(130, 175, 190, 175);
+
+// ================= NAMA =================
+
+pdf.setFontSize(11);
+
+pdf.text(
+    namaPelapor,
+    50,
+    182,
+    { align: 'center' }
+);
+
+pdf.text(
+    namaPenerima,
+    160,
+    182,
+    { align: 'center' }
+);
+
+// ================= JABATAN =================
+
+pdf.setFontSize(10);
+
+pdf.text(
+    jabatanPelapor,
+    50,
+    188,
+    { align: 'center' }
+);
+
+pdf.text(
+    jabatanPenerima,
+    160,
+    188,
+    { align: 'center' }
+);
+
+// ================= SAKSI (PIHAK TAMBAHAN) =================
+
+const validSaksi = saksiList.filter(s => s.nama && s.nama.trim());
+
+if (validSaksi.length > 0) {
+
+    let saksiY = 205;
+
+    pdf.setFont(getPdfFontFamily(), "bold");
+    pdf.setFontSize(12);
+    pdf.text("Saksi-Saksi", pageWidth / 2, saksiY, { align: 'center' });
+    saksiY += 10;
+
+    pdf.setFont(getPdfFontFamily(), "normal");
+    pdf.setFontSize(11);
+
+    validSaksi.forEach((s, idx) => {
+        if (saksiY > 270) {
+            pdf.addPage();
+            saksiY = 20;
+        }
+        pdf.text(`${idx + 1}. ${s.nama}${s.jabatan ? ' - ' + s.jabatan : ''}`, pageWidth / 2, saksiY, { align: 'center' });
+        saksiY += 8;
+    });
+}
+
+// ================= BUKTI TAMBAHAN (EVIDENCE) =================
+
+const validEvidence = evidenceList.filter(ev => ev.nilai && ev.nilai.trim());
+
+if (validEvidence.length > 0) {
+    pdf.addPage();
+    let evY = 20;
+
+    pdf.setFont(getPdfFontFamily(), "bold");
+    pdf.setFontSize(14);
+    pdf.text("LAMPIRAN BUKTI TAMBAHAN", pageWidth / 2, evY, { align: 'center' });
+    evY += 12;
+
+    pdf.setFont(getPdfFontFamily(), "normal");
+    pdf.setFontSize(11);
+
+    validEvidence.forEach((ev, idx) => {
+        if (evY > 270) {
+            pdf.addPage();
+            evY = 20;
+        }
+        const tipeLabel = ev.tipe === 'Custom' ? (ev.tipeCustom || 'Custom') : ev.tipe;
+        const line = `${idx + 1}. [${tipeLabel}] ${ev.nilai}`;
+        const wrapped = pdf.splitTextToSize(line, 180);
+        pdf.text(wrapped, margin, evY);
+        evY += wrapped.length * 6 + 4;
+    });
+}
+
+    // ================= FOTO =================
+
+    for (let i = 0; i < fotoDataList.length; i++) {
+
+        const foto = fotoDataList[i];
+
+        pdf.addPage();
+
+        pdf.setFont(getPdfFontFamily(), "bold");
+        pdf.setFontSize(14);
+
+        pdf.text(
+            `LAMPIRAN FOTO ${i + 1}`,
+            pageWidth / 2,
+            15,
+            { align: 'center' }
+        );
+
+        // ===== AUTO SCALE FOTO =====
+
+        const imgProps =
+            pdf.getImageProperties(
+                foto.dataURL
+            );
+
+        const maxWidth = 180;
+        const maxHeight = 140;
+
+        let imgWidth = maxWidth;
+        let imgHeight =
+            (imgProps.height * imgWidth) /
+            imgProps.width;
+
+        if (imgHeight > maxHeight) {
+
+            imgHeight = maxHeight;
+
+            imgWidth =
+                (imgProps.width * imgHeight) /
+                imgProps.height;
+        }
+
+        const x =
+            (210 - imgWidth) / 2;
+
+        pdf.addImage(
+            foto.dataURL,
+            detectImageFormat(foto.dataURL),
+            x,
+            25,
+            imgWidth,
+            imgHeight,
+            undefined,
+            'NONE'
+        );
+
+        // ===== KETERANGAN =====
+
+        pdf.setFont(getPdfFontFamily(), "normal");
+        pdf.setFontSize(11);
+
+        const ket =
+            foto.keterangan ||
+            '(Tanpa keterangan)';
+
+        const ketSplit =
+            pdf.splitTextToSize(
+                ket,
+                170
+            );
+
+        pdf.text(
+            ketSplit,
+            15,
+            190
+        );
+    }
+
+    // ================= WATERMARK & FOOTER (SEMUA HALAMAN) =================
+
+    drawWatermarkAndFooter(pdf, docNumberValue);
+
+    // ================= SAVE =================
+
+    const namaFileJenis = (document.getElementById('jenisDokumen').value || 'DOKUMEN').split(' ')[0];
+
+    pdf.save(
+        `${namaFileJenis}_${
+            namaPelapor.replace(/[^a-z0-9]/gi, '_')
+        }_${fileDate}.pdf`
+    );
+
+    saveToArchive({
+        nomor: docNumberValue,
+        nama: namaPelapor,
+        lokasi: document.getElementById('lokasi').value,
+        template: document.getElementById('templateDokumen').value,
+        jenis: document.getElementById('jenisDokumen').value,
+        keyword: document.getElementById('ket').value.slice(0, 60),
+        tahun: (fileDate || '').slice(0,4),
+        organisasi: document.getElementById('headerOrgName').value,
+        createdAt: Date.now()
+    });
+    addAuditEntry(`PDF dibuat — No: ${docNumberValue}`);
+    updateDashboardInfo();
+
+    clearDraft();
+
+} catch(err) {
+
+    alert(
+        "Error generating PDF: " +
+        err.message
+    );
+
+    console.error(err);
+}
+
+        } finally {
+            resumeLivePreviewAfterDownload();
+        }
+}
+</script>
+</body>
+</html>
